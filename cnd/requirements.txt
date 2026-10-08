@@ -1,0 +1,10 @@
+torch>=2.3
+transformers>=4.51        # 需包含学生/教师架构支持；Qwen3.5/3.8 出现较新，启动前确认版本
+vllm>=0.6
+accelerate>=0.30
+flash-attn>=2.5           # 可选但强烈建议
+datasets>=2.19
+math-verify>=0.4
+pyyaml
+numpy
+safetensors

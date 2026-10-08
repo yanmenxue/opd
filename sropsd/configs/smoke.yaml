@@ -1,0 +1,17 @@
+# 冒烟测试：0.5B 自蒸馏，2 轮打通全流程
+teacher_model: "Qwen/Qwen2.5-0.5B-Instruct"
+student_model: "Qwen/Qwen2.5-0.5B-Instruct"
+work_dir: "./runs/smoke"
+data:
+  max_questions: 64
+rounds:
+  num_rounds: 2
+  prompts_per_round: 16
+  G: 4
+  eval_every: 0
+grade:
+  teacher_devices: [0, 1]
+  student_devices: [0, 1]
+train:
+  micro_batch: 2
+  grad_accum: 2

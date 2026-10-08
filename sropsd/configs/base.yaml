@@ -1,0 +1,72 @@
+# SR-OPSD: Step-wise Reliability-Aware On-Policy (Self-)Distillation（论文一）
+# 从"全面监督"到"精准干预"：步级双轴（usefulness × gradient-reliability）+
+# token 级稀疏选择；算法详见 ../DESIGN_two_works.md §1.7
+
+# ===== 模型（自蒸馏设定：师生同 backbone）=====
+teacher_model: "Qwen/Qwen3.5-4B"
+student_model: "Qwen/Qwen3.5-4B"
+
+# ===== 路径与数据 =====
+work_dir: "./runs/main"
+data_train: "gsm8k"                  # gsm8k | math | jsonl:<path>
+data_eval: "gsm8k_test"              # gsm8k_test | math500 | jsonl:<path>
+data:
+  max_questions: 4000
+
+# ===== Round 循环 =====
+rounds:
+  num_rounds: 20
+  prompts_per_round: 256   # 每轮训练题数
+  G: 8                     # 每题学生采样数
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 1024
+  max_seq_len: 2048        # prompt+response 截断总长
+  eval_every: 5
+
+# ===== Phase 2: 打分 =====
+grade:
+  teacher_devices: [0, 1, 2, 3, 4, 5]   # 教师 bf16 前向占卡
+  student_devices: [6, 7]               # 学生前向占卡
+  vocab_chunk: 16384      # RKL 分词表块计算（online logsumexp）
+  micro_batch: 1          # 每次前向序列数
+  step_window: 64         # tokenizer 对齐失败时步骤切分的回退窗口（token）
+  ier_topk: 32            # IER 的 top-K 并集大小（轴二）
+  teacher_sees_gold: true # 自蒸馏规范设定 π_T(·|x,y*,·)；跨模型需同 tokenizer，可改 false
+
+# ===== Phase 3: 训练 =====
+train:
+  ckpt_dir: "./ckpt"      # 学生 checkpoint 目录（与初始模型路径分离，防教师遮蔽）
+  arm: "opd_acc"          # opd | opd_acc（RLVR baseline = w_kl: 0.0 + opd_acc）
+  w_kl: 1.0               # A_t = w_kl·(−RKL_t)（+ λ·A_acc）
+  lambda_acc: 1.0         # 答案组内相对优势权重（arm=opd 时无效）
+  adv_norm: true
+  lr: 1.0e-6
+  betas: [0.9, 0.95]
+  weight_decay: 0.0
+  warmup_steps: 10
+  micro_batch: 2
+  grad_accum: 8
+  epochs: 1               # >1 时启用 stored logprobs 的 PPO-clip
+  clip_eps: 0.2
+  max_grad_norm: 1.0
+  seed: 42
+  # ===== 精准干预选择 =====
+  select:
+    mode: "sr_opsd"       # none | usefulness | dual | step_retire | dual_step | sr_opsd
+    budget: 0.05          # token 模式：每序列入选比例（相对响应全长）
+    gamma: 1.0            # token dual 轴二强度（熵代理）
+    tau_align: null       # 步退役：步内 mean RKL 阈值
+    tau_unc: null         # 步退役：步内 mean H 阈值
+    tau_u: null           # sr_opsd 轴一门限：U_k = 步内 mean log-ratio
+    tau_r: null           # sr_opsd 轴二门限：R_k = 步内 mean IER
+    alpha: 1.0            # sr_opsd softmax(α·U·R) 温度
+    min_tokens: 8         # 每序列最少保留 token 数
+    correct_scale: 1.0    # 方向感知：正确 rollout 的 KL 缩放（<1 生效）
+    norm_scope: "all"     # 优势归一化范围：all | selected
+
+# ===== 评测 =====
+eval:
+  temperature: 0.0
+  max_tokens: 1024
+  max_questions: 500

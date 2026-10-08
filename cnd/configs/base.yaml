@@ -1,0 +1,72 @@
+# CND: Causal-Necessity Distillation（论文二）
+# 用步骤分支 MC 的答案分布熵识别"关键决策点"，把蒸馏信号集中在因果必要步骤上。
+# 算法详见 ../DESIGN_two_works.md §2.6
+
+# ===== 模型 =====
+teacher_model: "Qwen/Qwen3.5-4B"     # CND 规范设定：师生同 backbone
+student_model: "Qwen/Qwen3.5-4B"
+
+# ===== 路径与数据 =====
+work_dir: "./runs/main"
+data_train: "math"                   # MATH（训练）| gsm8k | jsonl:<path>
+data_eval: "gsm8k_test"              # 同分布测试；OOD 测试换 math500/jsonl
+data:
+  max_questions: 4000
+
+# ===== Round 循环 =====
+rounds:
+  num_rounds: 20
+  prompts_per_round: 256
+  G: 8
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 1024
+  max_seq_len: 2048
+  eval_every: 5
+
+# ===== Phase 2: 步骤分支 MC =====
+cnd:
+  enable: true
+  B: 4                   # 每步分支续写条数（价值分布样本量；ablation: 4 vs 8）
+  temperature: 0.8
+  top_p: 0.95
+  max_tokens: 256        # 续写到答案的短 rollout 长度
+  max_steps: 0           # 每条 rollout 最多测的步数（0=全部）
+  only_correct: true     # 只对正确 rollout 构建价值分布（spec）
+
+# ===== Phase 3: 打分 =====
+grade:
+  teacher_devices: [0, 1, 2, 3, 4, 5]
+  student_devices: [6, 7]
+  vocab_chunk: 16384      # RKL 分词表块计算（online logsumexp）
+  micro_batch: 1
+  step_window: 64         # tokenizer 对齐失败时步骤切分的回退窗口（token）
+  teacher_sees_gold: true # 蒸馏目标 π_T(·|x,y*,·)；跨模型需同 tokenizer，可改 false
+
+# ===== Phase 4: 训练 =====
+train:
+  ckpt_dir: "./ckpt"      # 学生 checkpoint 目录（与初始模型路径分离，防教师遮蔽）
+  arm: "opd_acc"          # opd | opd_acc（规范形态 = opd_acc：加权 KL + λ·L_RL）
+  w_kl: 1.0
+  lambda_acc: 1.0
+  adv_norm: true
+  lr: 1.0e-6
+  betas: [0.9, 0.95]
+  weight_decay: 0.0
+  warmup_steps: 10
+  micro_batch: 2
+  grad_accum: 8
+  epochs: 1
+  clip_eps: 0.2
+  max_grad_norm: 1.0
+  seed: 42
+  select:
+    mode: "cnd"           # cnd | none（none = 全量均匀 baseline）
+    alpha: 1.0            # softmax(α·N_k) 温度（权重集中度）
+    correct_scale: 1.0
+
+# ===== 评测 =====
+eval:
+  temperature: 0.0
+  max_tokens: 1024
+  max_questions: 500
