@@ -16,7 +16,8 @@ def _load_gsm8k(split="train"):
 
 def _load_math_train():
     """MATH train。hendrycks 原库是 script 数据集（datasets>=3.0 已移除支持），
-    失败回退 parquet 版 EleutherAI/hendrycks_math（同字段 problem/solution）。"""
+    失败回退 parquet 版 EleutherAI/hendrycks_math（同字段 problem/solution；
+    按学科分 7 个 config，逐个加载后拼接）。"""
     import re
 
     from datasets import load_dataset
@@ -24,7 +25,13 @@ def _load_math_train():
         ds = load_dataset("hendrycks/competition_math", split="train",
                           trust_remote_code=True)
     except Exception:
-        ds = load_dataset("EleutherAI/hendrycks_math", split="train")
+        from datasets import concatenate_datasets
+        subjects = ["algebra", "counting_and_probability", "geometry",
+                    "intermediate_algebra", "number_theory", "prealgebra",
+                    "precalculus"]
+        ds = concatenate_datasets([
+            load_dataset("EleutherAI/hendrycks_math", s, split="train")
+            for s in subjects])
     rows = []
     for i, ex in enumerate(ds):
         # gold 在 solution 的 \boxed{} 中
