@@ -29,7 +29,10 @@ def main():
         print(f"\n===== ROUND {k} =====", flush=True)
         run([sys.executable, "-m", "cnd.phase1_rollout", "--config", args.config,
              "--round", str(k)])
-        if cfg.get("cnd", {}).get("enable", True):
+        if cfg.get("cc", {}).get("enable", False):   # 主方法：反事实干预
+            run([sys.executable, "-m", "cnd.phase2_intervene", "--config", args.config,
+                 "--round", str(k)])
+        if cfg.get("cnd", {}).get("enable", False):  # 消融臂：CND 分支 MC
             run([sys.executable, "-m", "cnd.phase2_branch", "--config", args.config,
                  "--round", str(k)])
         run([sys.executable, "-m", "cnd.phase3_grade", "--config", args.config,

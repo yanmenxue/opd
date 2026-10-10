@@ -40,6 +40,7 @@ def load_pair(cfg):
     return tok, teacher, student
 
 
+
 def _streaming_lse(logits, lo, hi, device, chunk):
     """online logsumexp：逐块维护 running (max, sum)，防溢出。返回 [R,1]。"""
     m = None

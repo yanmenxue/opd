@@ -1,0 +1,72 @@
+# GAM-OPSD: Credit-Dispersion-aware Granularity-Adaptive On-Policy Self-Distillation（论文三）
+# 信用弥散度感知的粒度自适应蒸馏：Disp_t 高（弥散信用）→ 步骤级，低（集中信用）→ token 级
+
+# ===== 模型（自蒸馏设定：师生同 backbone）=====
+teacher_model: "Qwen/Qwen3.5-4B"
+student_model: "Qwen/Qwen3.5-4B"
+
+# ===== 路径与数据 =====
+work_dir: "./runs/main"
+data_train: "math"                   # math | gsm8k | jsonl:<path>
+data_eval: "math500"                 # math500（同分布主评测，按 level 分层）| aime24 | aime25 | amc23 | jsonl:<path>
+data:
+  max_questions: 4000
+  probe:                 # Phase 0 难度探针（推荐开；关掉则全量落盘）
+    enable: true
+    G: 4                 # 探针采样数
+    keep: [1, 3]         # 保留 pass@G' ∈ [1,3]（中难度带；全对/全错组优势恒 0）
+    temperature: 0.8
+    max_tokens: 1024
+
+# ===== Round 循环 =====
+rounds:
+  num_rounds: 20
+  prompts_per_round: 256   # 每轮训练题数
+  G: 8                     # 每题学生采样数
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 1024
+  max_seq_len: 2048        # prompt+response 截断总长
+  eval_every: 5
+
+# ===== Phase 2: 打分（师生对数比 a_t = log π_T − log π_S）=====
+grade:
+  teacher_devices: [0, 1, 2, 3, 4, 5]   # 教师 bf16 前向占卡
+  student_devices: [6, 7]               # 学生前向占卡
+  vocab_chunk: 16384      # logsumexp 分词表块计算（online，防溢出）
+  step_window: 64         # tokenizer 对齐失败时步骤切分的回退窗口（token）
+  teacher_sees_gold: true # 自蒸馏规范设定 π_T(·|x,y*,·)；跨模型需同 tokenizer，可改 false
+
+# ===== 粒度路由（route.py，GAM 核心）=====
+route:
+  mode: "dynamic"       # dynamic（GAM 路由）| token（标准 OPSD 臂）| step（全步骤级臂）
+  tau: 0.5              # 步内 mean Disp_t > τ → 步骤级（消融 0.3/0.5/0.7）
+  window: 16            # 弥散度局部半窗 w（消融 8/16/32）
+  eps: 1.0e-6           # 弥散度分母稳定项
+  lambda_step: 1.0      # λ_step：步骤级分支权重
+  adv_norm: false       # a 的符号携带方向（>0 应提升）；z-norm 会抹掉均值中的蒸馏压力
+  correct_scale: 1.0    # 方向感知：正确 rollout 的优势缩放（<1 生效）
+
+# ===== Phase 3: 训练 =====
+train:
+  ckpt_dir: "./ckpt"      # 学生 checkpoint 目录（与初始模型路径分离，防教师遮蔽）
+  arm: "opd_acc"          # opd | opd_acc（纯 GRPO baseline = w_kl: 0.0 + opd_acc）
+  w_kl: 1.0               # 蒸馏分支权重（=0 时退化为纯 RLVR）
+  lambda_acc: 1.0         # 答案组内相对优势权重（arm=opd 时无效）
+  adv_norm: false         # 兼容位：norm 在 route.adv_norm 内实现（token 分支）
+  lr: 1.0e-6
+  betas: [0.9, 0.95]
+  weight_decay: 0.0
+  warmup_steps: 10
+  micro_batch: 2
+  grad_accum: 8
+  epochs: 1               # >1 时启用 stored logprobs 的 PPO-clip
+  clip_eps: 0.2
+  max_grad_norm: 1.0
+  seed: 42
+
+# ===== 评测 =====
+eval:
+  temperature: 0.0
+  max_tokens: 1024
+  max_questions: 500

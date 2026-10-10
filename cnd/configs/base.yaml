@@ -1,6 +1,6 @@
-# CND: Causal-Necessity Distillation（论文二）
-# 用步骤分支 MC 的答案分布熵识别"关键决策点"，把蒸馏信号集中在因果必要步骤上。
-# 算法详见 ../DESIGN_two_works.md §2.6
+# Causal-Credit OPSD（论文二）：反事实干预的步骤级信用分配蒸馏
+# 用"步骤矛盾替换 → 答案是否翻转"测因果必要度，把蒸馏信号集中在因果必要步骤上。
+# CND 分支 MC 保留为消融臂。算法详见 ../DESIGN_two_works.md §2.7
 
 # ===== 模型 =====
 teacher_model: "Qwen/Qwen3.5-4B"     # CND 规范设定：师生同 backbone
@@ -9,9 +9,15 @@ student_model: "Qwen/Qwen3.5-4B"
 # ===== 路径与数据 =====
 work_dir: "./runs/main"
 data_train: "math"                   # MATH（训练）| gsm8k | jsonl:<path>
-data_eval: "gsm8k_test"              # 同分布测试；OOD 测试换 math500/jsonl
+data_eval: "math500"                 # math500（主评测）| aime24 | aime25(~id未验证) | amc23 | gsm8k_test | jsonl:<path>
 data:
   max_questions: 4000
+  probe:                 # Phase 0 难度探针（推荐开；关掉则全量落盘）
+    enable: true
+    G: 4                 # 探针采样数
+    keep: [1, 3]         # 保留 pass@G' ∈ [1,3]（中难度带；分支 MC 与组内优势都不退化）
+    temperature: 0.8
+    max_tokens: 1024
 
 # ===== Round 循环 =====
 rounds:
@@ -24,9 +30,21 @@ rounds:
   max_seq_len: 2048
   eval_every: 5
 
-# ===== Phase 2: 步骤分支 MC =====
-cnd:
+# ===== Phase 2: Causal-Credit 反事实干预（主方法）=====
+cc:
   enable: true
+  variants: 2            # 每步矛盾改写变体数（spec 单次=方差上界；>1 方差缩减，可消融回 1）
+  intervention: "negate" # negate 逻辑反转 | factual 事实反转 | premise 前提否定（消融轴）
+  min_rollout_tokens: 300 # rollout 长度下限（短链干预空间有限，spec）
+  rewrite_max_tokens: 128 # 矛盾步骤改写长度上限
+  max_tokens: 256        # 干预后重生成到答案
+  temperature: 0.8
+  top_p: 0.95
+  max_steps: 0           # 每条 rollout 最多干预的步数（0=全部）
+
+# ===== Phase 2(消融): CND 分支 MC =====
+cnd:
+  enable: false
   B: 4                   # 每步分支续写条数（价值分布样本量；ablation: 4 vs 8）
   temperature: 0.8
   top_p: 0.95
@@ -61,8 +79,8 @@ train:
   max_grad_norm: 1.0
   seed: 42
   select:
-    mode: "cnd"           # cnd | none（none = 全量均匀 baseline）
-    alpha: 1.0            # softmax(α·N_k) 温度（权重集中度）
+    mode: "causal_credit" # causal_credit（主）| cnd（分支 MC 消融）| none（全量均匀）
+    alpha: 1.0            # softmax(α·φ_k / α·N_k) 温度（权重集中度）
     correct_scale: 1.0
 
 # ===== 评测 =====

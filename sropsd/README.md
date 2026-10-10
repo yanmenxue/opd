@@ -30,14 +30,16 @@ token 级消融模式（`select.py`）：`usefulness`（top-b RKL）/ `dual`（R
 
 ```bash
 pip install -r requirements.txt
+# 网络受限时先设 HF 镜像：export HF_ENDPOINT=https://hf-mirror.com
 
-# 0) 构建训练题
-python -c "from sropsd.data import build_prompts; from sropsd.common import load_config; build_prompts(load_config('configs/base.yaml'))"
+# 0) 构建训练题：难度探针（基座 pass@4 过滤中难度带）→ runs/main/prompts.jsonl
+#    数据运行时从 HF 拉取；probe.enable=false 则全量落盘
+python -m sropsd.phase0_probe --config configs/base.yaml
 
 # 1-3) 轮次循环
 python -m sropsd.loop --config configs/base.yaml --rounds 20
 
-# 评测
+# 评测（data_eval: math500 主评测 | aime24/amc23 OOD | gsm8k_test 辅助）
 python -m sropsd.eval_acc --config configs/base.yaml --model <student_path>
 ```
 

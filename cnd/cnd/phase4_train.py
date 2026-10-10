@@ -2,11 +2,12 @@
 
 arm:
 - opd:      A_t = w_kl·ω_t·(−RKL_t)                纯蒸馏（免答案）
-- opd_acc:  A_t = w_kl·ω_t·(−RKL_t) + λ·A_acc      CND 规范形态（+ L_RL 项）
+- opd_acc:  A_t = w_kl·ω_t·(−RKL_t) + λ·A_acc      规范形态（+ L_RL 项）
 
 select.mode：
-- cnd:  步级因果必要性加权（weights.py；phase2 的 cnd.jsonl）
-- none: 全量均匀（baseline；ω ≡ 1）
+- causal_credit: 步级因果敏感度加权（phase2_intervene 的 cc.jsonl，φ_k）
+- cnd:           步级分支 MC 必要性加权（phase2_branch 的 cnd.jsonl，N_k；消融臂）
+- none:          全量均匀（baseline；ω ≡ 1）
 
 单 epoch 纯 on-policy REINFORCE（epochs>1 启用存储 logprobs 的 PPO-clip）。
 常因子在优势归一化之后施加（防 z-norm 抵消）。
@@ -19,7 +20,7 @@ import torch
 import torch.distributed as dist
 
 from .common import load_config, read_jsonl, round_dir, set_seed, write_jsonl
-from .weights import cnd_step_weights, omega_advantage
+from .weights import causal_credit_weights, cnd_step_weights, omega_advantage
 
 
 def build_advantage(cfg, resp):
@@ -38,21 +39,25 @@ def build_advantage(cfg, resp):
     return adv
 
 
-def load_necessity(cfg, k):
-    """(qid, resp_idx) -> necessity dict（step_idx -> N_k，phase2 落盘）。"""
+_SIGNAL_FILE = {"cnd": "cnd.jsonl", "causal_credit": "cc.jsonl"}
+
+
+def load_signal(cfg, k, mode):
+    """(qid, resp_idx) -> {step_idx: 标量}（phase2 落盘：cnd=N_k / cc=φ_k）。"""
     try:
-        rows = read_jsonl(round_dir(cfg["work_dir"], k) / "cnd.jsonl")
+        rows = read_jsonl(round_dir(cfg["work_dir"], k) / _SIGNAL_FILE[mode])
     except FileNotFoundError:
         return {}
-    return {(r["qid"], r["resp"]): r["necessity"] for r in rows}
+    key = "necessity" if mode == "cnd" else "phi"
+    return {(r["qid"], r["resp"]): r[key] for r in rows}
 
 
 def load_round_samples(cfg, k):
     t = cfg["train"]
     rows = read_jsonl(round_dir(cfg["work_dir"], k) / "graded.jsonl")
     sc = t.get("select", {})
-    mode = sc.get("mode", "cnd")
-    nec_map = load_necessity(cfg, k) if mode == "cnd" else {}
+    mode = sc.get("mode", "causal_credit")
+    sig_map = load_signal(cfg, k, mode) if mode in _SIGNAL_FILE else {}
     samples = []
     agg = {"frac": [], "kl_cov": [], "dropped": 0}
     for r in rows:
@@ -60,14 +65,17 @@ def load_round_samples(cfg, k):
             n = len(resp["rkl"])
             if n == 0:
                 continue
-            if mode == "cnd":
+            if mode in ("cnd", "causal_credit"):
                 spans = resp.get("step_spans") or []
-                nd = nec_map.get((r["qid"], gi))
-                if nd and spans:
-                    nec = [nd.get(str(i), nd.get(i)) for i in range(len(spans))]
-                    omega, _ = cnd_step_weights(nec, spans, sc.get("alpha", 1.0))
+                sd = sig_map.get((r["qid"], gi))
+                if sd and spans:
+                    vals = [sd.get(str(i), sd.get(i)) for i in range(len(spans))]
+                    if mode == "causal_credit":
+                        omega, _ = causal_credit_weights(vals, spans, sc.get("alpha", 1.0))
+                    else:
+                        omega, _ = cnd_step_weights(vals, spans, sc.get("alpha", 1.0))
                 else:
-                    omega = [1.0] * n  # 无分支信号回退：均匀（= 全量 OPSD + acc）
+                    omega = [1.0] * n  # 信号缺失回退：均匀（= 全量 OPSD + acc）
                 omega = (omega + [0.0] * n)[:n]
                 if not any(x > 0 for x in omega):
                     agg["dropped"] += 1
@@ -153,7 +161,7 @@ def main():
     samples, sel_stats = load_round_samples(cfg, args.round)
     if rank == 0:
         print(f"[train] round {args.round} arm={t['arm']}: {len(samples)} samples")
-        print(f"[train] select mode={t.get('select', {}).get('mode', 'cnd')}: "
+        print(f"[train] select mode={t.get('select', {}).get('mode', 'causal_credit')}: "
               f"frac={sel_stats['frac']:.3f} kl_cov={sel_stats['kl_cov']:.3f} "
               f"dropped_seqs={sel_stats['dropped']}")
 

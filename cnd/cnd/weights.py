@@ -19,8 +19,10 @@ def _softmax(xs):
 
 
 def cnd_step_weights(necessity, spans, alpha=1.0):
-    """CND：softmax(α·N_k) → ω_t。N_k=None 的步骤不进 softmax、不受监督。
+    """CND/Causal-Credit：softmax(α·per-step 标量) → ω_t。
 
+    标量可以是 CND 的 N_k（分支 MC 熵）或 Causal-Credit 的 φ_k（反事实翻转率），
+    两者同构；None 的步骤不进 softmax、不受监督。
     返回 (omega, stats)。omega 长度 = spans[-1][1]（= 响应 token 数）。
     """
     n = spans[-1][1] if spans else 0
@@ -37,6 +39,12 @@ def cnd_step_weights(necessity, spans, alpha=1.0):
             omega[t] = w[wi] / (e - s)
     return omega, {"kept": len(kept),
                    "w": {k: round(x, 4) for k, x in zip(kept, w)}}
+
+
+def causal_credit_weights(phi, spans, alpha=1.0):
+    """Causal-Credit：softmax(α·φ_k) → ω_t（与 cnd_step_weights 同构的别名，
+    代码里显式区分以便论文-代码对应）。"""
+    return cnd_step_weights(phi, spans, alpha)
 
 
 def omega_advantage(rkl, omega, w_kl=1.0, adv_norm=True,
