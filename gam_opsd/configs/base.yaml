@@ -2,8 +2,8 @@
 # 信用弥散度感知的粒度自适应蒸馏：Disp_t 高（弥散信用）→ 步骤级，低（集中信用）→ token 级
 
 # ===== 模型（自蒸馏设定：师生同 backbone）=====
-teacher_model: "/disk1/duhw/model/ms_qwen3.5_4B"
-student_model: "/disk1/duhw/model/ms_qwen3.5_4B"
+teacher_model: "/disk1/duhw/models/ms_qwen3.5_4B"
+student_model: "/disk1/duhw/models/ms_qwen3.5_4B"
 
 # ===== 路径与数据 =====
 work_dir: "./runs/main"
