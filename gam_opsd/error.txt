@@ -1,5 +1,4 @@
- cd /disk1/duhw/code/opd/gam_opsd
- grep -A4 "probe:" configs/base.yaml                      # 确认 keep / max_questions 实际值
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# grep -A4 "probe:" configs/base.yaml                      # 确认 keep / max_questions 实际值
  git diff gam_opsd/data.py | head -40                     # 确认回退函数是"7 学科 × split=train"的修复版
  python - <<'EOF'
  import json
@@ -7,3 +6,42 @@
  prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
  m500 = set(load_dataset("HuggingFaceH4/MATH-500", split="test")["problem"])
  print(f"prompts={len(prompts)}, 与 MATH-500 重叠: {sum(1 for q in prompts if q in m500)}")
+  probe:                 # Phase 0 难度探针（推荐开；关掉则全量落盘）
+    enable: true
+    G: 4                 # 探针采样数
+    keep: [1, 3]         # 保留 pass@G' ∈ [1,3]（中难度带；全对/全错组优势恒 0）
+    temperature: 0.8
+>
+>
+>
+> ^C
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# git diff gam_opsd/data.py | head -40
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# python
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import json
+m datasets import load_dataset
+ prompts = [json.loads(l)["question"] for l in open("runs/main/pr>>>  from datasets import load_dataset
+  File "<stdin>", line 1
+    from datasets import load_dataset
+IndentationError: unexpected indent
+>>>  prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
+  File "<stdin>", line 1
+    prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
+IndentationError: unexpected indent
+>>>  m500 = set(load_dataset("HuggingFaceH4/MATH-500", split="test")["problem"])
+  File "<stdin>", line 1
+    m500 = set(load_dataset("HuggingFaceH4/MATH-500", split="test")["problem"])
+IndentationError: unexpected indent
+>>>  print(f"prompts={len(prompts)}, 与 MATH-500 重叠: {sum(1 for q in prompts if q in m500)}")
+KeyboardInterrupt
+>>> from datasets import load_dataset
+>>> prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
+>>> m500 = set(load_dataset("HuggingFaceH4/MATH-500", split="test")["problem"])
+README.md: 100%|███████████████████████████████████████████████████████████████████| 412/412 [00:00<00:00, 1.21MB/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+test.jsonl: 100%|████████████████████████████████████████████████████████████████| 447k/447k [00:00<00:00, 51.6MB/s]
+Generating test split: 100%|████████████████████████████████████████████| 500/500 [00:00<00:00, 59875.86 examples/s]
+>>> print(f"prompts={len(prompts)}, 与 MATH-500 重叠: {sum(1 for q in prompts if q in m500)}")
+prompts=871, 与 MATH-500 重叠: 0
