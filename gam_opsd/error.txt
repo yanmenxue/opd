@@ -1,5 +1,9 @@
-Processed prompts:   0%|                  | 0/12376 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=2341408) WARNING 10-10 19:07:00 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-(EngineCore pid=2341408) WARNING 10-10 19:07:16 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Processed prompts: 100%|█| 12376/12376 [1:48:37<00:00,  1.90it/s, est. speed input: 196.35 toks/s, output: 1937.64 toks/
-[probe] pass@G' histogram (0..4): 0:0.70 1:0.18 2:0.07 3:0.03 4:0.02
-[probe] kept 871 mid-difficulty questions -> prompts.jsonl
+ cd /disk1/duhw/code/opd/gam_opsd
+  grep -A4 "probe:" configs/base.yaml                      # 确认 keep / max_questions 实际值
+  git diff gam_opsd/data.py | head -40                     # 确认回退函数是"7 学科 × split=train"的修复版
+  python - <<'EOF'
+  import json
+  from datasets import load_dataset
+  prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
+  m500 = set(load_dataset("HuggingFaceH4/MATH-500", split="test")["problem"])
+  print(f"prompts={len(prompts)}, 与 MATH-500 重叠: {sum(1 for q in prompts if q in m500)}")
