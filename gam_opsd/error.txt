@@ -1,2 +1,9 @@
- md5sum gam_opsd/common.py gam_opsd/data.py   # 应为 4c206b10... / f3b69557...                                                                                  
- python -m gam_opsd.phase0_probe --config configs/base.yaml
+Processed prompts:   0%|                  | 0/15992 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=808967) WARNING 10-13 16:04:50 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=808967) WARNING 10-13 16:05:01 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+
+
+Processed prompts:   1%|  | 80/15992 [01:11<2:49:13,  1.57it/s, est. speed input: 122.31 toks/s, output: 1143.27 toks/s](EngineCore pid=808967) WARNING 10-13 16:06:02 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _zero_kv_blocks_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:   2%| | 300/15992 [03:26<6:27:38,  1.48s/it, est. speed input: 151.36 toks/s, output: 1486.34 toks/s]
+
+
+Processed prompts:   7%| | 1140/15992 [10:32<3:30:39,  1.18it/s, est. speed input: 200.48 t
