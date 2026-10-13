@@ -1,31 +1,5 @@
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase0_probe.py", line 71, in <module>
-    main()
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase0_probe.py", line 37, in main
-    rows = load_train(cfg)
-           ^^^^^^^^^^^^^^^
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/data.py", line 42, in load_train
-    rows = _load_math_train()
-           ^^^^^^^^^^^^^^^^^^
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/data.py", line 27, in _load_math_train
-    ds = load_dataset("EleutherAI/hendrycks_math", split="train")
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/datasets/load.py", line 2062, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/datasets/load.py", line 1819, in load_dataset_builder
-    builder_instance: DatasetBuilder = builder_cls(
-                                       ^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/datasets/builder.py", line 343, in __init__
-    self.config, self.config_id = self._create_builder_config(
-                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/datasets/builder.py", line 555, in _create_builder_config
-    raise ValueError(
-ValueError: Config name is missing.
-Please pick one among the available configs: ['algebra', 'counting_and_probability', 'geometry', 'intermediate_algebra', 'number_theory', 'prealgebra', 'precalculus']
-Example of usage:
-        `load_dataset('EleutherAI/hendrycks_math', 'algebra')`
+Processed prompts:   0%|                  | 0/12376 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=2341408) WARNING 10-10 19:07:00 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=2341408) WARNING 10-10 19:07:16 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts: 100%|█| 12376/12376 [1:48:37<00:00,  1.90it/s, est. speed input: 196.35 toks/s, output: 1937.64 toks/
+[probe] pass@G' histogram (0..4): 0:0.70 1:0.18 2:0.07 3:0.03 4:0.02
+[probe] kept 871 mid-difficulty questions -> prompts.jsonl
