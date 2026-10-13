@@ -1,14 +1,10 @@
-cd /disk1/duhw/code/opd/gam_opsd
-md5sum gam_opsd/phase0_probe.py gam_opsd/data.py && git log --oneline -3
-python - <<'EOF'
-import json
-from datasets import load_dataset, concatenate_datasets
-subj = ["algebra","counting_and_probability","geometry","intermediate_algebra",
-      "number_theory","prealgebra","precalculus"]
-tr = concatenate_datasets([load_dataset("EleutherAI/hendrycks_math", s, split="train") for s in subj])
-te = concatenate_datasets([load_dataset("EleutherAI/hendrycks_math", s, split="test") for s in subj])
-tset = set(te["problem"])
-prompts = [json.loads(l)["question"] for l in open("runs/main/prompts.jsonl", encoding="utf-8")]
-print(f"train={len(tr)}, test={len(te)} (预期 7500/5000)")
-print(f"prompts={len(prompts)}, 与 MATH test 全量重叠: {sum(1 for q in prompts if q in tset)}")
-EOF
+06011d7d156f8b59ddb30f784c039864  gam_opsd/phase0_probe.py
+42fa15f82f0e9cc26f5fd4f7754aa47f  gam_opsd/data.py
+dd1d3fc (HEAD -> master, origin/master, origin/HEAD) opd
+0f95b8a Update error.txt
+dc7350f opd
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+
+train=7500, test=5000 (预期 7500/5000)
