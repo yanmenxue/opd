@@ -1,7 +1,7 @@
 """训练/评测数据加载与 prompts 构建。"""
 import random
 
-from .common import read_jsonl, write_jsonl
+from .common import last_boxed, read_jsonl, write_jsonl
 
 
 def _load_gsm8k(split="train"):
@@ -18,8 +18,6 @@ def _load_math_train():
     """MATH train。hendrycks 原库是 script 数据集（datasets>=3.0 已移除支持），
     失败回退 parquet 版 EleutherAI/hendrycks_math（同字段 problem/solution；
     按学科分 7 个 config，逐个加载后拼接）。"""
-    import re
-
     from datasets import load_dataset
     try:
         ds = load_dataset("hendrycks/competition_math", split="train",
@@ -34,10 +32,9 @@ def _load_math_train():
             for s in subjects])
     rows = []
     for i, ex in enumerate(ds):
-        # gold 在 solution 的 \boxed{} 中
-        m = re.findall(r"\\boxed\{([^{}]+)\}", ex["solution"])
+        # gold 在 solution 的 \boxed{} 中（last_boxed 支持嵌套花括号）
         rows.append({"qid": f"math-{i}", "question": ex["problem"],
-                     "gold": m[-1] if m else ""})
+                     "gold": last_boxed(ex["solution"])})
     return rows
 
 

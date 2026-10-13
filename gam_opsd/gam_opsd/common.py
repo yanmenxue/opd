@@ -78,8 +78,32 @@ def latest_student(cfg):
 
 
 # ---------- 答案抽取与归一化 ----------
-_BOXED = re.compile(r"\\boxed\{([^{}]+)\}")
 _NUM = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
+_BOXED_HEAD = "\\boxed{"
+
+
+def last_boxed(text: str) -> str:
+    """取最后一个 \\boxed{...} 的内容；支持嵌套花括号（\\frac{1}{2} 等，
+    简单正则 [^{}]+ 匹配不到这类答案）。"""
+    start = text.rfind(_BOXED_HEAD)
+    if start == -1:
+        return ""
+    i, depth, out = start + len(_BOXED_HEAD), 1, []
+    while i < len(text):
+        c = text[i]
+        if c == "\\":  # 跳过转义（\{ \} 是字面花括号，不计深度）
+            out.append(text[i:i + 2])
+            i += 2
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return "".join(out)
+        out.append(c)
+        i += 1
+    return ""  # 括号不闭合（截断输出），交给调用方回退
 
 
 def normalize_answer(s: str) -> str:
@@ -97,9 +121,9 @@ def extract_answer(text: str) -> str:
     """优先 \\boxed{}，否则取最后一个数字。"""
     if not text:
         return ""
-    m = _BOXED.findall(text)
+    m = last_boxed(text)
     if m:
-        return normalize_answer(m[-1])
+        return normalize_answer(m)
     nums = _NUM.findall(text)
     return normalize_answer(nums[-1]) if nums else ""
 
