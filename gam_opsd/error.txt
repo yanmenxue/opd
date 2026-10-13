@@ -1,10 +1,2 @@
-06011d7d156f8b59ddb30f784c039864  gam_opsd/phase0_probe.py
-42fa15f82f0e9cc26f5fd4f7754aa47f  gam_opsd/data.py
-dd1d3fc (HEAD -> master, origin/master, origin/HEAD) opd
-0f95b8a Update error.txt
-dc7350f opd
-
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-
-
-train=7500, test=5000 (预期 7500/5000)
+ md5sum gam_opsd/common.py gam_opsd/data.py   # 应为 4c206b10... / f3b69557...                                                                                  
+ python -m gam_opsd.phase0_probe --config configs/base.yaml
