@@ -231,25 +231,36 @@ def build_serving_dir(cfg):
     if not ckpt_w.exists():
         return str(src)
     out = Path(cfg["work_dir"]) / "serving_student"
-    sig = f"{ckpt_w}:{ckpt_w.stat().st_mtime_ns}"
+    sig = f"v2:{ckpt_w}:{ckpt_w.stat().st_mtime_ns}"  # v2: 键名前缀对齐
     marker = out / ".built_for"
     if marker.exists() and marker.read_text().strip() == sig:
         return str(out)  # ckpt 未变，直接复用
     out.mkdir(parents=True, exist_ok=True)
-    for p in src.iterdir():  # 权重与索引之外的文件照搬（config/分词器/视觉处理器）
-        if p.is_file() and p.suffix not in {".safetensors", ".bin", ".pt", ".pth"} \
-                and not p.name.endswith(".index.json"):
-            shutil.copy2(p, out / p.name)
+    files = sorted(src.glob("*.safetensors"))
+    orig_keys = set()
+    for f in files:
+        with safe_open(f, framework="pt") as sf:
+            orig_keys.update(sf.keys())
     stud = safe_open(ckpt_w, framework="pt")
     stud_keys = set(stud.keys())
+    # ckpt 是文本子模块命名（model.* / lm_head.*），原始 VL 权重带
+    # language_model. 前缀——以原始键为准做前缀对齐，只替换能对上的文本张量
+    prefix = ""
+    for k in sorted(orig_keys):
+        if k.endswith("model.embed_tokens.weight"):
+            prefix = k[:-len("model.embed_tokens.weight")]
+            break
+    repl = {prefix + k: k for k in stud_keys if prefix + k in orig_keys}
+    if not repl:
+        raise RuntimeError("ckpt 键与原始权重对齐失败（前缀不匹配），不重建 serving 目录")
+    print(f"[serving] 前缀 '{prefix}'：替换文本张量 {len(repl)}/{len(stud_keys)}，"
+          f"visual 等其余 {len(orig_keys) - len(repl)} 个保持原样")
     merged = {}
-    for f in sorted(src.glob("*.safetensors")):
+    for f in files:
         with safe_open(f, framework="pt") as sf:
             for k in sf.keys():
-                merged[k] = (stud.get_tensor(k).to(torch.bfloat16)
-                             if k in stud_keys else sf.get_tensor(k))
-    for k in stud_keys - set(merged):  # ckpt 独有键（如解绑的 lm_head）
-        merged[k] = stud.get_tensor(k).to(torch.bfloat16)
+                merged[k] = (stud.get_tensor(repl[k]).to(torch.bfloat16)
+                             if k in repl else sf.get_tensor(k))
     save_file(merged, str(out / "model.safetensors"), metadata={"format": "pt"})
     marker.write_text(sig)
     print(f"[serving] 文本权重已替换为学生 ckpt -> {out}")
