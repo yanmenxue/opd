@@ -1,43 +1,17 @@
-poissongpu006:1879601:1879601 [7] NCCL INFO comm 0x1c6a9450 rank 7 nranks 8 cudaDev 7 busId b2000 - Destroy COMPLETE
-poissongpu006:1879596:1879596 [2] NCCL INFO comm 0x57c43d30 rank 2 nranks 8 cudaDev 2 busId 3d000 - Destroy COMPLETE
-poissongpu006:1879594:1879594 [0] NCCL INFO comm 0x503042d0 rank 0 nranks 8 cudaDev 0 busId 1a000 - Destroy COMPLETE
-poissongpu006:1879595:1879595 [1] NCCL INFO comm 0x3e6acec0 rank 1 nranks 8 cudaDev 1 busId 1b000 - Destroy COMPLETE
-poissongpu006:1879597:1879597 [3] NCCL INFO comm 0x2500e630 rank 3 nranks 8 cudaDev 3 busId 3e000 - Destroy COMPLETE
-poissongpu006:1879598:1879598 [4] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879599:1879599 [5] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879596:1879596 [2] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879597:1879597 [3] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879601:1879601 [7] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879595:1879595 [1] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879600:1879600 [6] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-poissongpu006:1879594:1879594 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
-
-===== ROUND 1 =====
-+ /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase1_rollout --config configs/base.yaml --round 1
-INFO 10-14 19:50:03 [api_utils.py:273] non-default args: {'dtype': 'bfloat16', 'max_model_len': 2112, 'enable_prefix_caching': True, 'disable_log_stats': True, 'model': 'ckpt'}
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase1_rollout.py", line 63, in <module>
-    main()
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase1_rollout.py", line 29, in main
-    llm = build_llm(student, tp=1, max_model_len=rc["max_seq_len"] + 64)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                                                                                                                                                                                                  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/common.py", line 217, in build_llm
-    return LLM(
-           ^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/entrypoints/llm.py", line 338, in __init__
-    self.llm_engine = LLMEngine.from_engine_args(
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 171, in from_engine_args
-    vllm_config = engine_args.create_engine_config(usage_context)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/engine/arg_utils.py", line 1880, in create_engine_config
-    model_config = self.create_model_config()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/engine/arg_utils.py", line 1639, in create_model_config
-    return ModelConfig(
-           ^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
-    s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
-pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
-  Value error, Model architectures ['Qwen3_5TextModel'] are not supported for now. Supported architectures: dict_keys(['AfmoeForCausalLM', 'ApertusForCausalLM', 'ArceeForCausalLM', 'ArcticForCausalLM', 'AXK1ForCausalLM', 'BailingMoeForCausalLM', 'BailingMoeV2ForCausalLM', 'BailingMoeV2_5ForCausalLM', 'BloomForCausalLM', 'ChatGLMModel', 'ChatGLMForConditionalGeneration', 'CohereForCausalLM', 'Cohere2ForCausalLM', 'Cohere2MoeForCausalLM', 'CwmForCausalLM', 'DbrxForCausalLM', 'DeciLMForCausalLM', 'DeepseekForCausalLM', 'DeepseekV2ForCausalLM', 'DeepseekV3ForCausalLM', 'DeepseekV32ForCausalLM', 'DeepseekV4ForCausalLM', 'Ernie4_5ForCausalLM', 'Ernie4_5_MoeForCausalLM', 'ExaoneForCausalLM', 'Exaone4ForCausalLM', 'ExaoneMoEForCausalLM', 'Fairseq2LlamaForCausalLM', 'FalconForCausalLM', 'FalconMambaForCausalLM', 'FalconH1ForCausalLM', 'FlexOlmoForCausalLM', 'GemmaForCausalLM', 'Gemma2ForCausalLM', 'Gemma3ForCausalLM', 'Rnj1ForCausalLM', 'Gemma3nForCausalLM', 'Gemma4ForCausalLM', 'Qwen3NextForCausalLM', 'GlmForCausalLM', 'Glm4ForCausalLM', 'Glm4MoeForCausalLM', 'Glm4MoeLiteForCausalLM', 'GlmMoeDsaForCausalLM', 'GptOssForCausalLM', 'GPT2LMHeadModel', 'GPTJForCausalLM', 'GPTNeoXForCausalLM', 'GraniteForCausalLM', 'GraniteMoeForCausalLM', 'GraniteMoeHybridForCausalLM', 'GraniteMoeSharedForCausalLM', 'GritLM', 'HrmTextForCausalLM', 'HunYuanMoEV1ForCausalLM', 'HunYuanDenseV1ForCausalLM', 'HYV3ForCausalLM', 'HCXVisionForCausalLM', 'HCXVisionV2ForCausalLM', 'HyperCLOVAXForCausalLM', 'InternLM2ForCausalLM', 'InternLM3ForCausalLM', 'IQuestCoderForCausalLM', 'IQuestLoopCoderForCausalLM', 'Jais2ForCausalLM', 'JambaForCausalLM', 'KimiLinearForCausalLM', 'Lfm2ForCausalLM', 'Lfm2MoeForCausalLM', 'LagunaForCausalLM', 'LlamaForCausalLM', 'Llama4ForCausalLM', 'LLaMAForCausalLM', 'LongcatFlashForCausalLM', 'LongcatFlashNgramForCausalLM', 'MambaForCausalLM', 'Mamba2ForCausalLM', 'MellumForCausalLM', 'MiniCPMForCausalLM', 'MiniCPM3ForCausalLM', 'MiniMaxM2ForCausalLM', 'MiniMaxM3SparseForCausalLM', 'InklingForCausalLM', 'InklingForConditionalGeneration', 'Ministral3ForCausalLM', 'MistralForCausalLM', 'MistralLarge3ForCausalLM', 'MixtralForCausalLM', 'MptForCausalLM', 'MPTForCausalLM', 'MiMoForCausalLM', 'MiMoV2FlashForCausalLM', 'MiMoV2ForCausalLM', 'NemotronForCausalLM', 'NemotronHForCausalLM', 'NemotronHPuzzleForCausalLM', 'Olmo3ForCausalLM', 'OlmoHybridForCausalLM', 'OlmoeForCausalLM', 'OPTForCausalLM', 'OrionForCausalLM', 'OuroForCausalLM', 'PanguEmbeddedForCausalLM', 'PanguProMoEV2ForCausalLM', 'PanguUltraMoEForCausalLM', 'Param2MoEForCausalLM', 'PhiForCausalLM', 'Phi3ForCausalLM', 'PhiMoEForCausalLM', 'Plamo2ForCausalLM', 'Plamo3ForCausalLM', 'Qwen2ForCausalLM', 'Qwen2MoeForCausalLM', 'Qwen3ForCausalLM', 'Qwen3MoeForCausalLM', 'RWForCausalLM', 'SarvamMoEForCausalLM', 'SarvamMLAForCausalLM', 'SeedOssForCausalLM', 'Step1ForCausalLM', 'Step3TextForCausalLM', 'Step3p5ForCausalLM', 'StableLMEpochForCausalLM', 'StableLmForCausalLM', 'SolarForCausalLM', 'TeleChat2ForCausalLM', 'TeleChat3ForCausalLM', 'TeleFLMForCausalLM', 'Zamba2ForCausalLM', 'BertModel', 'BertForMaskedLM', 'BertSpladeSparseEmbeddingModel', 'BgeM3EmbeddingModel', 'Gemma2Model', 'Gemma3TextModel', 'GteModel', 'GteNewModel', 'JinaEmbeddingsV5Model', 'LlamaBidirectionalModel', 'LlamaModel', 'MistralModel', 'ModernBertModel', 'NomicBertModel', 'Qwen2Model', 'RobertaForMaskedLM', 'RobertaModel', 'VoyageQwen3BidirectionalEmbedModel', 'XLMRobertaModel', 'CLIPModel', 'ColPaliForRetrieval', 'LlamaNemotronVLModel', 'LlavaNextForConditionalGeneration', 'Phi3VForCausalLM', 'Qwen2VLForConditionalGeneration', 'SiglipModel', 'PrithviGeoSpatialMAE', 'Terratorch', 'HF_ColBERT', 'ColBERTModernBertModel', 'ColBERTJinaRobertaModel', 'ColBERTLfm2Model', 'JinaForRanking', 'ColModernVBertForRetrieval', 'ColQwen3', 'OpsColQwen3Model', 'ColQwen3_5', 'Qwen3VLNemotronEmbedModel', 'InternLM2ForRewardModel', 'Qwen2ForRewardModel', 'Qwen2ForProcessRewardModel', 'BertForTokenClassification', 'ModernBertForTokenClassification', 'OpenAIPrivacyFilterForTokenClassification', 'Qwen3ASRForcedAlignerForTokenClassification', 'RobertaForTokenClassification', 'XLMRobertaForTokenClassification', 'BertForSequenceClassification', @@@                                                                                                                                                                                                                                          
+ cd /disk1/duhw/code/opd/gam_opsd
+  python - <<'EOF'
+  import json
+  orig = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
+  p = "ckpt/config.json"
+  cfg = json.load(open(p))
+  import json
+  orig = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
+  p = "ckpt/config.json"
+  cfg = json.load(open(p))
+  cfg["architectures"] = orig["architectures"]
+  cfg["model_type"] = orig["model_type"]
+  json.dump(cfg, open(p, "w"), indent=2, ensure_ascii=False)
+  print("patched:", cfg["architectures"], cfg["model_type"])
+  EOF
+  md5sum gam_opsd/phase3_train.py    # 应为 1d10f6059abac5e07fb1b16efac8f030
+  python -m gam_opsd.loop --config configs/base.yaml --resume
