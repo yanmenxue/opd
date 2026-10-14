@@ -23,6 +23,8 @@ def main():
     # 本节点 RoCE/libmlx5 与 NCCL 2.28 不兼容（ncclNetPluginInit 段错误）；
     # 单机训练不走 IB，禁用后回退 P2P/SHM。可被外部环境变量覆盖。
     os.environ.setdefault("NCCL_IB_DISABLE", "1")
+    # 大 [B,T,V] logits 张量反复分配导致预留碎片（曾达 6GB reserved-unallocated）
+    os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/base.yaml")
     ap.add_argument("--start", type=int, default=0)

@@ -172,10 +172,13 @@ def main():
 
         ids = ids.cuda(rank)
         resp_mask = resp_mask.cuda(rank)
-        logits = fsdp(input_ids=ids).logits.float()
-        logp_all = torch.log_softmax(logits[:, :-1], dim=-1)
         tgt = ids[:, 1:]
-        tok_logp = logp_all.gather(-1, tgt.unsqueeze(-1)).squeeze(-1)   # [B, T-1]
+        # 融合 CE 取选中 token 的 logp（log_softmax.gather ≡ -CE），
+        # 避免物化整份 [B,T,V] fp32 log_softmax 输出（省 ~2.5GB/前向+反向）
+        logits = fsdp(input_ids=ids).logits
+        tok_logp = -torch.nn.functional.cross_entropy(
+            logits[:, :-1].float().reshape(-1, logits.size(-1)),
+            tgt.reshape(-1), reduction="none").view(tgt.shape)          # [B, T-1]
         m = resp_mask[:, 1:].float()
 
         adv = adv_t[:, 1:].cuda(rank)
