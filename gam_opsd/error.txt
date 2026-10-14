@@ -1,9 +1,13 @@
-Processed prompts:   0%|                  | 0/15992 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=808967) WARNING 10-13 16:04:50 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-(EngineCore pid=808967) WARNING 10-13 16:05:01 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-
-
-Processed prompts:   1%|  | 80/15992 [01:11<2:49:13,  1.57it/s, est. speed input: 122.31 toks/s, output: 1143.27 toks/s](EngineCore pid=808967) WARNING 10-13 16:06:02 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _zero_kv_blocks_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Processed prompts:   2%| | 300/15992 [03:26<6:27:38,  1.48s/it, est. speed input: 151.36 toks/s, output: 1486.34 toks/s]
-
-
-Processed prompts:   7%| | 1140/15992 [10:32<3:30:39,  1.18it/s, est. speed input: 200.48 t
+iorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+Rendering conversations:   0%|                                                                 | 0/3998 [00:00<?, ?it/s]INFO 10-13 20:33:53 [hf.py:540] Detected the chat template content format to be 'openai'. You can set `--chat-template-content-format` to override this.
+Rendering conversations:   0%|                                                         | 1/3998 [00:00<57:47,  1.15it/s](EngineCore pid=985415) WARNING 10-13 20:33:53 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Rendering conversations:   9%|████▉                                                 | 362/3998 [00:01<00:07, 514.91it/s](EngineCore pid=985415) WARNING 10-13 20:33:53 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Rendering conversations: 100%|█████████████████████████████████████████████████████| 3998/3998 [00:04<00:00, 989.77it/s]
+Processed prompts:   0%|                  | 0/15992 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=985415) WARNING 10-13 20:34:04 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=985415) WARNING 10-13 20:35:03 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _zero_kv_blocks_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts: 100%|█| 15992/15992 [2:20:49<00:00,  1.89it/s, est. speed input: 204.27 toks/s, output: 1931.91 toks/
+[probe] pass@G' histogram (0..4): 0:0.76 1:0.14 2:0.06 3:0.03 4:0.02
+[probe] kept 918 mid-difficulty questions -> prompts.jsonl
+(EngineCore pid=985415) INFO 10-13 22:54:48 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
+(EngineCore pid=985415) INFO 10-13 22:54:48 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=985415) INFO 10-13 2
