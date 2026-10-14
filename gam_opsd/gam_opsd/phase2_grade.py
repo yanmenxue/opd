@@ -126,12 +126,13 @@ def main():
         std = (sum((x - mu) ** 2 for x in golds) / len(golds)) ** 0.5
         acc_adv = [0.0] * len(golds) if std < 1e-6 else [(x - mu) / std for x in golds]
 
+        # tokenize=True 显式要 ids（transformers v5 起默认 False，返回模板字符串）
         ps = tok.apply_chat_template(qa_messages(r["question"]),
-                                     add_generation_prompt=True)
+                                     add_generation_prompt=True, tokenize=True)
         pt = tok.apply_chat_template(
             qa_messages_gold(r["question"], r["gold"]) if gold_hint
             else qa_messages(r["question"]),
-            add_generation_prompt=True)
+            add_generation_prompt=True, tokenize=True)
         vresps = []
         for resp, a_adv in zip(r["responses"], acc_adv):
             resp_ids = resp["token_ids"]

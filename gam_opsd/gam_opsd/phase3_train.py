@@ -150,7 +150,8 @@ def main():
             continue
 
         pids = [tok.apply_chat_template(
-            [{"role": "user", "content": s["question"]}], add_generation_prompt=True)
+            [{"role": "user", "content": s["question"]}],
+            add_generation_prompt=True, tokenize=True)  # v5 默认 False 返回 str
             for s in micro]
         maxlen = max(len(p) + len(s["token_ids"]) for p, s in zip(pids, micro))
         pad = tok.pad_token_id or tok.eos_token_id
