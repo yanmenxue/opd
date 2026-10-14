@@ -6,21 +6,21 @@
   你只跑过第一版补丁(抄 VL 名字)——上一次 preprocessor_config.json 崩溃就是它引起的。诊断那步如果只贴进了 >>> REPL 且没执行最后两行，ckpt 现在仍是 VL 声明。重打：
 
   cd /disk1/duhw/code/opd/gam_opsd
-  python - <<'EOF'
-  import json
-  p = "ckpt/config.json"
-  cfg = json.load(open(p))
-  print("before:", cfg["architectures"], cfg["model_type"])
-  cfg["architectures"] = ["Qwen3NextForCausalLM"]
-  cfg["model_type"] = "qwen3_next"
-  json.dump(cfg, open(p, "w"), indent=2, ensure_ascii=False)
-  print("after :", cfg["architectures"], cfg["model_type"])
+python - <<'EOF'
+import json
+p = "ckpt/config.json"
+cfg = json.load(open(p))
+print("before:", cfg["architectures"], cfg["model_type"])
+cfg["architectures"] = ["Qwen3NextForCausalLM"]
+cfg["model_type"] = "qwen3_next"
+json.dump(cfg, open(p, "w"), indent=2, ensure_ascii=False)
+print("after :", cfg["architectures"], cfg["model_type"])
   EOF
 
   ③ 验证 + 后台长跑
 
-  md5sum gam_opsd/phase3_train.py configs/base.yaml   # 03f3a9cb... / 0894c4e3...
-  grep -E "architectures|model_type" ckpt/config.json # Qwen3NextForCausalLM / qwen3_next
+md5sum gam_opsd/phase3_train.py configs/base.yaml   # 03f3a9cb... / 0894c4e3...
+grep -E "architectures|model_type" ckpt/config.json # Qwen3NextForCausalLM / qwen3_next
 
-  nohup python -m gam_opsd.loop --config configs/base.yaml --resume > loop.log 2>&1 &
-  tail -f loop.log
+nohup python -m gam_opsd.loop --config configs/base.yaml --resume > loop.log 2>&1 &
+tail -f loop.log
