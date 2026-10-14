@@ -219,14 +219,18 @@ def main():
     if rank == 0:
         out_dir = Path(t.get("ckpt_dir", "./ckpt"))
         out_dir.mkdir(parents=True, exist_ok=True)
-        # transformers v5 加载时会把 config.architectures 改写成 backbone 类名
-        # （如 Qwen3_5TextModel），vLLM 按该字段分发且不认——回写原始模型声明
-        with open(Path(cfg["student_model"]) / "config.json", encoding="utf-8") as f:
-            orig_meta = json.load(f)
-        fsdp.module.config.architectures = orig_meta.get(
-            "architectures", fsdp.module.config.architectures)
-        fsdp.module.config.model_type = orig_meta.get(
-            "model_type", fsdp.module.config.model_type)
+        # ckpt 只含文本骨干权重，必须声明为纯文本 CausalLM 架构（原始模型是
+        # VL/多模态时尤其如此，否则 vLLM 会走多模态加载路径）。
+        # 显式配置优先；否则回退原始 config 的声明
+        t_arch = t.get("ckpt_architectures")
+        t_mtype = t.get("ckpt_model_type")
+        if not (t_arch and t_mtype):
+            with open(Path(cfg["student_model"]) / "config.json", encoding="utf-8") as f:
+                orig_meta = json.load(f)
+            t_arch = t_arch or orig_meta.get("architectures")
+            t_mtype = t_mtype or orig_meta.get("model_type")
+        fsdp.module.config.architectures = t_arch
+        fsdp.module.config.model_type = t_mtype
         fsdp.module.config.save_pretrained(out_dir)
         tok.save_pretrained(out_dir)
         from safetensors.torch import save_file

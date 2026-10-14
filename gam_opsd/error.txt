@@ -1,59 +1,14 @@
-File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/engine/input_processor.py", line 62, in __init__
-    mm_budget = MultiModalBudget(vllm_config, mm_registry)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/multimodal/encoder_budget.py", line 87, in __init__
-    all_mm_max_toks_per_item = get_mm_max_toks_per_item(
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/multimodal/encoder_budget.py", line 25, in get_mm_max_toks_per_item
-    max_tokens_per_item = processor.info.get_mm_max_tokens_per_item(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/models/qwen2_vl.py", line 859, in get_mm_max_tokens_per_item
-    max_image_tokens = self.get_max_image_tokens()
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/models/qwen2_vl.py", line 1002, in get_max_image_tokens
-    image_processor = self.get_image_processor()
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_vl.py", line 860, in get_image_processor
-    return self.get_hf_processor(**kwargs).image_processor
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_vl.py", line 853, in get_hf_processor
-    return self.ctx.get_hf_processor(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/multimodal/processing/context.py", line 205, in get_hf_processor
-    return cached_processor_from_config(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/transformers_utils/processor.py", line 379, in cached_processor_from_config
-    return cached_get_processor_without_dynamic_kwargs(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/transformers_utils/processor.py", line 347, in cached_get_processor_without_dynamic_kwargs
-    processor = cached_get_processor(
-                ^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/transformers_utils/processor.py", line 233, in get_processor
-    processor = processor_cls.from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/processing_utils.py", line 1715, in from_pretrained
-    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/processing_utils.py", line 1844, in _get_arguments_from_pretrained
-    sub_processor = auto_processor_class.from_pretrained(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/models/auto/image_processing_auto.py", line 580, in from_pretrained
-    raise initial_exception
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/models/auto/image_processing_auto.py", line 567, in from_pretrained
-    config_dict, _ = ImageProcessingMixin.get_image_processor_dict(
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/image_processing_base.py", line 334, in get_image_processor_dict
-    raise OSError(
-OSError: Can't load image processor for 'ckpt'. If you were trying to load it from 'https://huggingface.co/models', make sure you don't have a local directory with the same name. Otherwise, make sure 'ckpt' is the correct path to a directory containing a preprocessor_config.json file
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 67, in <module>
-    main()
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 46, in main
-    run([sys.executable, "-m", "gam_opsd.phase1_rollout", "--config", args.config,
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 19, in run
-    subprocess.run(cmd, check=True)
-  File "/root/anaconda3/envs/python12/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/root/anaconda3/envs/python12/bin/python', '-m', 'gam_opsd.phase1_rollout', '--config', 'configs/base.yaml', '--round', '1']' returned non-zero exit status 1.
+ cd /disk1/duhw/code/opd/gam_opsd
+  python - <<'EOF'
+  cd /disk1/duhw/code/opd/gam_opsd
+  python - <<'EOF'
+  import json
+  from vllm.model_executor.models.registry import ModelRegistry
+  print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
+  o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
+  print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
+  tc = o.get("text_config") or {}
+  print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
+  c = json.load(open("ckpt/config.json"))
+  print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
+  EOF
