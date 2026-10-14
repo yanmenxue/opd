@@ -1,26 +1,52 @@
-- gam_opsd/phase3_train.py → 03f3a9cbdf938f7b73236bc5aa881f8f
-  - configs/base.yaml → 0894c4e358888228d4a44570dce44950(含你改的 micro_batch:1/grad_accum:16 + 两个新键)
-
-  ② ckpt 还没打 Qwen3Next 补丁
-
-  你只跑过第一版补丁(抄 VL 名字)——上一次 preprocessor_config.json 崩溃就是它引起的。诊断那步如果只贴进了 >>> REPL 且没执行最后两行，ckpt 现在仍是 VL 声明。重打：
-
-  cd /disk1/duhw/code/opd/gam_opsd
-python - <<'EOF'
-import json
-p = "ckpt/config.json"
-cfg = json.load(open(p))
-print("before:", cfg["architectures"], cfg["model_type"])
-cfg["architectures"] = ["Qwen3NextForCausalLM"]
-cfg["model_type"] = "qwen3_next"
-json.dump(cfg, open(p, "w"), indent=2, ensure_ascii=False)
-print("after :", cfg["architectures"], cfg["model_type"])
-  EOF
-
-  ③ 验证 + 后台长跑
-
-md5sum gam_opsd/phase3_train.py configs/base.yaml   # 03f3a9cb... / 0894c4e3...
-grep -E "architectures|model_type" ckpt/config.json # Qwen3NextForCausalLM / qwen3_next
-
-nohup python -m gam_opsd.loop --config configs/base.yaml --resume > loop.log 2>&1 &
-tail -f loop.log
+EngineCore pid=1972392) INFO 10-14 21:43:29 [core.py:116] Initializing a V1 LLM engine (v0.26.0) with config: model='ckpt', speculative_config=None, tokenizer='ckpt', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2112, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=ckpt, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=1972392) INFO 10-14 21:43:30 [parallel_state.py:1615] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://10.50.91.125:49301 backend=nccl
+(EngineCore pid=1972392) INFO 10-14 21:43:30 [parallel_state.py:1946] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank 0, EPLB rank N/A
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [topk_topp_sampler.py:55] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [gpu_model_runner.py:5250] Starting to load model ckpt...
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [qwen_gdn_linear_attn.py:150] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [unquantized.py:302] Using TRITON Unquantized MoE backend out of potential backends: ['FlashInfer TRTLLM', 'FlashInfer CUTLASS', 'TRITON', 'BATCHED_TRITON'].
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [cuda.py:482] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=1972392) INFO 10-14 21:43:32 [flash_attn.py:776] Using FlashAttention version 2
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [gpu_model_runner.py:5345] Failed to load model - not enough GPU memory. Try lowering --gpu-memory-utilization to free memory for weights, increasing --tensor-parallel-size, or using --quantization. See https://docs.vllm.ai/en/latest/configuration/conserving_memory/ for more tips. (original error: CUDA out of memory. Tried to allocate 1.25 GiB. GPU 0 has a total capacity of 23.56 GiB of which 93.00 MiB is free. Including non-PyTorch memory, this process has 23.46 GiB memory in use. Of the allocated memory 23.12 GiB is allocated by PyTorch, and 30.91 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf))
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330] EngineCore failed to start.^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330] Traceback (most recent call last):^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1299, in run_engine_core^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     return func(*args, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]            ^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1065, in __init__^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     super().__init__(^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     self.model_executor = executor_class(vllm_config)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     return func(*args, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]            ^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     self._init_executor()^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 68, in _init_executor^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     self.driver_worker.load_model()^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 431, in load_model^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     self.model_runner.load_model(load_dummy_weights=load_dummy_weights)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     return func(*args, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]            ^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5346, in load_model^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     raise e^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5266, in load_model^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     self.model = model_loader.load_model(^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]                  ^^^^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     return func(*args, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]            ^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/model_loader/base_loader.py", line 55, in load_model^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     model = initialize_model(^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]             ^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     return func(*args, **kwargs)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]            ^^^^^^^^^^^^^^^^^^^^^^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]   File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 63, in initialize_model^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]     model = model_class(vllm_config=vllm_config, prefix=prefix)^M
+(EngineCore pid=1972392) ERROR 10-14 21:43:33 [core.py:1330]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^M
