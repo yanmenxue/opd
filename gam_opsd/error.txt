@@ -1,21 +1,36 @@
- cd /disk1/duhw/code/opd/gam_opsd
-  md5sum gam_opsd/phase1_rollout.py gam_opsd/phase2_grade.py gam_opsd/loop.py
-  # 应为 f4d62e8d... / c691ed5f... / 9ef714ab...
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# python -m gam_opsd.loop --config configs/base.yaml --resume
 
-  # 1) 补算 round 0 真实 pass@8(纯 CPU,秒级)
- python -c "
-import sys; sys.path.insert(0,'.')
-from gam_opsd.common import read_jsonl, score_answer
-rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
-acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
-print('round0 true pass@8 =', round(acc, 3))
- "
-
->>> import sys; sys.path.insert(0,'.')
->>> from gam_opsd.common import read_jsonl, score_answer
-main/round_000/rollouts.jsonl')
-acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
-print('round0 true pass@8 =', round(acc, 3))>>> rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
->>> acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
->>> print('round0 true pass@8 =', round(acc, 3))
-round0 true pass@8 = 0.793
+===== ROUND 0 =====
++ /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase2_grade --config configs/base.yaml --round 0
+[grade] teacher -> [0, 1, 2, 3, 4, 5], student -> [6, 7]
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+/root/anaconda3/envs/python12/lib/python3.12/site-packages/kernels/utils.py:391: FutureWarning: Future versions of `kernels` (>=0.15) will require specifying a kernel version or revision. See: https://huggingface.co/docs/kernels/migration
+  revision = select_revision_or_version(repo_id, revision=revision, version=version)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 23 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████| 23/23 [00:00<00:00, 1611.68it/s]
+Reconstruction complete: |                                                                                               |  0.00B /  0.00B
+Download complete: :                                                                                                              |  0.00B
+[transformers] You do not have `flash_attn` installed, using `kernels-community/flash-attn2` from the `kernels` library instead!
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 426/426 [00:02<00:00, 163.55it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 426/426 [00:03<00:00, 141.87it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 166, in <module>
+    main()
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 136, in main
+    for resp, a_adv in zip(r["responses"], acc_adv):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'float' object is not iterable
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 61, in <module>
+    main()
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 43, in main
+    run([sys.executable, "-m", "gam_opsd.phase2_grade", "--config", args.config,
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 18, in run
+    subprocess.run(cmd, check=True)
+  File "/root/anaconda3/envs/python12/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
