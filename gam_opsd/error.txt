@@ -1,30 +1,26 @@
- cd /disk1/duhw/code/opd/gam_opsd
-  python - <<'EOF'
+- gam_opsd/phase3_train.py → 03f3a9cbdf938f7b73236bc5aa881f8f
+  - configs/base.yaml → 0894c4e358888228d4a44570dce44950(含你改的 micro_batch:1/grad_accum:16 + 两个新键)
+
+  ② ckpt 还没打 Qwen3Next 补丁
+
+  你只跑过第一版补丁(抄 VL 名字)——上一次 preprocessor_config.json 崩溃就是它引起的。诊断那步如果只贴进了 >>> REPL 且没执行最后两行，ckpt 现在仍是 VL 声明。重打：
+
   cd /disk1/duhw/code/opd/gam_opsd
   python - <<'EOF'
-import json
-from vllm.model_executor.models.registry import ModelRegistry
-print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
-o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
-print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
-tc = o.get("text_config") or {}
-print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
-c = json.load(open("ckpt/config.json"))
-print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
+  import json
+  p = "ckpt/config.json"
+  cfg = json.load(open(p))
+  print("before:", cfg["architectures"], cfg["model_type"])
+  cfg["architectures"] = ["Qwen3NextForCausalLM"]
+  cfg["model_type"] = "qwen3_next"
+  json.dump(cfg, open(p, "w"), indent=2, ensure_ascii=False)
+  print("after :", cfg["architectures"], cfg["model_type"])
   EOF
 
+  ③ 验证 + 后台长跑
 
->>> import json
->>> from vllm.model_executor.models.registry import ModelRegistry
-架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
-o = json.loa>>> print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
-vLLM 支持的 Qwen 系架构: ['ColQwen3', 'ColQwen3_5', 'Eagle3Qwen2_5vlForCausalLM', 'Eagle3Qwen3ForCausalLM', 'Eagle3Qwen3vlForCausalLM', 'OpsColQwen3Model', 'PeagleQwen3ForCausalLM', 'Qwen2AudioForConditionalGeneration', 'Qwen2ForCausalLM', 'Qwen2ForProcessRewardModel', 'Qwen2ForRewardModel', 'Qwen2Model', 'Qwen2MoeForCausalLM', 'Qwen2VLForConditionalGeneration', 'Qwen2_5OmniForConditionalGeneration', 'Qwen2_5OmniModel', 'Qwen2_5_VLForConditionalGeneration', 'Qwen3ASRForConditionalGeneration', 'Qwen3ASRForcedAlignerForTokenClassification', 'Qwen3ASRRealtimeGeneration', 'Qwen3DSparkModel', 'Qwen3ForCausalLM', 'Qwen3MoeForCausalLM', 'Qwen3NextForCausalLM', 'Qwen3NextMTP', 'Qwen3OmniMoeForConditionalGeneration', 'Qwen3VLForConditionalGeneration', 'Qwen3VLMoeForConditionalGeneration', 'Qwen3VLNemotronEmbedModel', 'Qwen3_5ForConditionalGeneration', 'Qwen3_5MTP', 'Qwen3_5MoeForConditionalGeneration', 'Qwen3_5MoeMTP', 'VoyageQwen3BidirectionalEmbedModel']
->>> o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
-rig architecture>>> print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
-orig architectures: ['Qwen3_5ForConditionalGeneration'] | model_type: qwen3_5
->>> tc = o.get("text_config") or {}
->>> print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
-chitectures"), "orig text_config model_type: qwen3_5_text | keys: ['attention_bias', 'attention_dropout', 'attn_output_gate', 'dtype', 'eos_token_id', 'full_attention_interval', 'head_dim', 'hidden_act', 'hidden_size', 'initializer_range', 'intermediate_size', 'layer_types', 'linear_conv_kernel_dim', 'linear_key_head_dim', 'linear_num_key_heads', 'linear_num_value_heads', 'linear_value_head_dim', 'mamba_ssm_dtype']
->>> c = json.load(open("ckpt/config.json"))
->>> print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
-ckpt architectures: ['Qwen3_5ForConditionalGeneration'] | model_type: qwen3_5
+  md5sum gam_opsd/phase3_train.py configs/base.yaml   # 03f3a9cb... / 0894c4e3...
+  grep -E "architectures|model_type" ckpt/config.json # Qwen3NextForCausalLM / qwen3_next
+
+  nohup python -m gam_opsd.loop --config configs/base.yaml --resume > loop.log 2>&1 &
+  tail -f loop.log
