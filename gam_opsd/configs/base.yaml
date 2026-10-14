@@ -50,8 +50,8 @@ route:
 # ===== Phase 3: 训练 =====
 train:
   ckpt_dir: "./ckpt"      # 学生 checkpoint 目录（与初始模型路径分离，防教师遮蔽）
-  ckpt_architectures: "Qwen3NextForCausalLM"  # ckpt 只存文本骨干权重，声明 vLLM 认的纯文本架构
-  ckpt_model_type: "qwen3_next"               # 原始 Qwen3.5-4B 为 VL 模型，文本骨干为 Qwen3Next 系
+  ckpt_architectures: "Qwen3_5TextModel"  # ckpt 真实身份=VL 模型的文本骨干（transformers 的 phase2/3 用）；
+  ckpt_model_type: "qwen3_5_text"         # vLLM 不直接服务 ckpt 目录，走 common.build_serving_dir 的马甲目录
   arm: "opd_acc"          # opd | opd_acc（纯 GRPO baseline = w_kl: 0.0 + opd_acc）
   w_kl: 1.0               # 蒸馏分支权重（=0 时退化为纯 RLVR）
   lambda_acc: 1.0         # 答案组内相对优势权重（arm=opd 时无效）

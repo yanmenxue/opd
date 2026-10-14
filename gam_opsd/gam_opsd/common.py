@@ -212,6 +212,50 @@ def chat_template_ids(tok, conversation):
 
 
 # ---------- vLLM ----------
+def build_serving_dir(cfg):
+    """vLLM 可服务的完整模型目录（文本骨干 = 训练后学生权重）。
+
+    基座是 VL 模型（Qwen3_5ForConditionalGeneration），ckpt 只存文本骨干权重，
+    而服务器 vLLM 未注册 Qwen3.5 纯文本架构（Qwen3Next 实现为 MoE 专用，
+    装不下稠密权重）——故整体复制原始模型目录（config/分词器/视觉处理器），
+    将文本权重张量替换为学生 ckpt；vLLM 按原始 VL 架构加载，视觉塔闲置。
+    无训练 ckpt 时直接返回原始路径。"""
+    import shutil
+
+    import torch
+    from safetensors import safe_open
+    from safetensors.torch import save_file
+
+    src = Path(cfg["student_model"])
+    ckpt_w = Path(cfg["train"].get("ckpt_dir", "./ckpt")) / "model.safetensors"
+    if not ckpt_w.exists():
+        return str(src)
+    out = Path(cfg["work_dir"]) / "serving_student"
+    sig = f"{ckpt_w}:{ckpt_w.stat().st_mtime_ns}"
+    marker = out / ".built_for"
+    if marker.exists() and marker.read_text().strip() == sig:
+        return str(out)  # ckpt 未变，直接复用
+    out.mkdir(parents=True, exist_ok=True)
+    for p in src.iterdir():  # 权重与索引之外的文件照搬（config/分词器/视觉处理器）
+        if p.is_file() and p.suffix not in {".safetensors", ".bin", ".pt", ".pth"} \
+                and not p.name.endswith(".index.json"):
+            shutil.copy2(p, out / p.name)
+    stud = safe_open(ckpt_w, framework="pt")
+    stud_keys = set(stud.keys())
+    merged = {}
+    for f in sorted(src.glob("*.safetensors")):
+        with safe_open(f, framework="pt") as sf:
+            for k in sf.keys():
+                merged[k] = (stud.get_tensor(k).to(torch.bfloat16)
+                             if k in stud_keys else sf.get_tensor(k))
+    for k in stud_keys - set(merged):  # ckpt 独有键（如解绑的 lm_head）
+        merged[k] = stud.get_tensor(k).to(torch.bfloat16)
+    save_file(merged, str(out / "model.safetensors"), metadata={"format": "pt"})
+    marker.write_text(sig)
+    print(f"[serving] 文本权重已替换为学生 ckpt -> {out}")
+    return str(out)
+
+
 def build_llm(model: str, tp: int, max_model_len: int = 4096, mem_util: float = 0.92):
     from vllm import LLM
     return LLM(

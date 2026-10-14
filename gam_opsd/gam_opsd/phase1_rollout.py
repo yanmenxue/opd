@@ -2,8 +2,8 @@
 import argparse
 
 from .common import (
-    build_llm, chat_many, extract_answer, latest_student, load_config, read_jsonl,
-    round_dir, score_answer, write_jsonl,
+    build_llm, build_serving_dir, chat_many, extract_answer, load_config,
+    read_jsonl, round_dir, score_answer, write_jsonl,
 )
 from .prompts import qa_messages
 
@@ -16,7 +16,7 @@ def main():
     args = ap.parse_args()
     cfg = load_config(args.config)
     rc = cfg["rounds"]
-    student = args.student_path or latest_student(cfg)
+    student = args.student_path or build_serving_dir(cfg)
 
     prompts = read_jsonl(f"{cfg['work_dir']}/prompts.jsonl")
     # 无放回轮流取题：轮次 r 取第 [r*B, (r+1)*B) 块

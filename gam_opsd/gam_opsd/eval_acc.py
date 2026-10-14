@@ -3,8 +3,8 @@ import argparse
 from collections import defaultdict
 
 from .common import (
-    build_llm, chat_many, extract_answer, latest_student, load_config, score_answer,
-    write_jsonl,
+    build_llm, build_serving_dir, chat_many, extract_answer, load_config,
+    score_answer, write_jsonl,
 )
 from .data import load_eval
 from .prompts import qa_messages
@@ -46,7 +46,7 @@ def main():
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     cfg = load_config(args.config)
-    evaluate(args.model or latest_student(cfg), cfg, args.out)
+    evaluate(args.model or build_serving_dir(cfg), cfg, args.out)
 
 
 if __name__ == "__main__":
