@@ -6,6 +6,7 @@
                                                                 # 与半完成轮次已落盘的阶段
 """
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +20,9 @@ def run(cmd):
 
 
 def main():
+    # 本节点 RoCE/libmlx5 与 NCCL 2.28 不兼容（ncclNetPluginInit 段错误）；
+    # 单机训练不走 IB，禁用后回退 P2P/SHM。可被外部环境变量覆盖。
+    os.environ.setdefault("NCCL_IB_DISABLE", "1")
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/base.yaml")
     ap.add_argument("--start", type=int, default=0)
