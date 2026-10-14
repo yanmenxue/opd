@@ -2,13 +2,29 @@
   python - <<'EOF'
   cd /disk1/duhw/code/opd/gam_opsd
   python - <<'EOF'
-  import json
-  from vllm.model_executor.models.registry import ModelRegistry
-  print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
-  o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
-  print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
-  tc = o.get("text_config") or {}
-  print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
-  c = json.load(open("ckpt/config.json"))
-  print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
+import json
+from vllm.model_executor.models.registry import ModelRegistry
+print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
+o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
+print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
+tc = o.get("text_config") or {}
+print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
+c = json.load(open("ckpt/config.json"))
+print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
   EOF
+
+
+>>> import json
+>>> from vllm.model_executor.models.registry import ModelRegistry
+架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
+o = json.loa>>> print("vLLM 支持的 Qwen 系架构:", sorted(a for a in ModelRegistry.get_supported_archs() if "wen" in a.lower()))
+vLLM 支持的 Qwen 系架构: ['ColQwen3', 'ColQwen3_5', 'Eagle3Qwen2_5vlForCausalLM', 'Eagle3Qwen3ForCausalLM', 'Eagle3Qwen3vlForCausalLM', 'OpsColQwen3Model', 'PeagleQwen3ForCausalLM', 'Qwen2AudioForConditionalGeneration', 'Qwen2ForCausalLM', 'Qwen2ForProcessRewardModel', 'Qwen2ForRewardModel', 'Qwen2Model', 'Qwen2MoeForCausalLM', 'Qwen2VLForConditionalGeneration', 'Qwen2_5OmniForConditionalGeneration', 'Qwen2_5OmniModel', 'Qwen2_5_VLForConditionalGeneration', 'Qwen3ASRForConditionalGeneration', 'Qwen3ASRForcedAlignerForTokenClassification', 'Qwen3ASRRealtimeGeneration', 'Qwen3DSparkModel', 'Qwen3ForCausalLM', 'Qwen3MoeForCausalLM', 'Qwen3NextForCausalLM', 'Qwen3NextMTP', 'Qwen3OmniMoeForConditionalGeneration', 'Qwen3VLForConditionalGeneration', 'Qwen3VLMoeForConditionalGeneration', 'Qwen3VLNemotronEmbedModel', 'Qwen3_5ForConditionalGeneration', 'Qwen3_5MTP', 'Qwen3_5MoeForConditionalGeneration', 'Qwen3_5MoeMTP', 'VoyageQwen3BidirectionalEmbedModel']
+>>> o = json.load(open("/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B/config.json"))
+rig architecture>>> print("orig architectures:", o.get("architectures"), "| model_type:", o.get("model_type"))
+orig architectures: ['Qwen3_5ForConditionalGeneration'] | model_type: qwen3_5
+>>> tc = o.get("text_config") or {}
+>>> print("orig text_config model_type:", tc.get("model_type"), "| keys:", sorted(tc.keys())[:18])
+chitectures"), "orig text_config model_type: qwen3_5_text | keys: ['attention_bias', 'attention_dropout', 'attn_output_gate', 'dtype', 'eos_token_id', 'full_attention_interval', 'head_dim', 'hidden_act', 'hidden_size', 'initializer_range', 'intermediate_size', 'layer_types', 'linear_conv_kernel_dim', 'linear_key_head_dim', 'linear_num_key_heads', 'linear_num_value_heads', 'linear_value_head_dim', 'mamba_ssm_dtype']
+>>> c = json.load(open("ckpt/config.json"))
+>>> print("ckpt architectures:", c.get("architectures"), "| model_type:", c.get("model_type"))
+ckpt architectures: ['Qwen3_5ForConditionalGeneration'] | model_type: qwen3_5
