@@ -1,13 +1,56 @@
-iorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
-Rendering conversations:   0%|                                                                 | 0/3998 [00:00<?, ?it/s]INFO 10-13 20:33:53 [hf.py:540] Detected the chat template content format to be 'openai'. You can set `--chat-template-content-format` to override this.
-Rendering conversations:   0%|                                                         | 1/3998 [00:00<57:47,  1.15it/s](EngineCore pid=985415) WARNING 10-13 20:33:53 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Rendering conversations:   9%|████▉                                                 | 362/3998 [00:01<00:07, 514.91it/s](EngineCore pid=985415) WARNING 10-13 20:33:53 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Rendering conversations: 100%|█████████████████████████████████████████████████████| 3998/3998 [00:04<00:00, 989.77it/s]
-Processed prompts:   0%|                  | 0/15992 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=985415) WARNING 10-13 20:34:04 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-(EngineCore pid=985415) WARNING 10-13 20:35:03 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _zero_kv_blocks_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Processed prompts: 100%|█| 15992/15992 [2:20:49<00:00,  1.89it/s, est. speed input: 204.27 toks/s, output: 1931.91 toks/
-[probe] pass@G' histogram (0..4): 0:0.76 1:0.14 2:0.06 3:0.03 4:0.02
-[probe] kept 918 mid-difficulty questions -> prompts.jsonl
-(EngineCore pid=985415) INFO 10-13 22:54:48 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
-(EngineCore pid=985415) INFO 10-13 22:54:48 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
-(EngineCore pid=985415) INFO 10-13 2
+Processed prompts: 100%|███| 2048/2048 [18:19<00:00,  1.86it/s, est. speed input: 142.78 toks/s, output: 1899.26 toks/s]
+[rollout] round 0: 256 prompts -> runs/main/round_000/rollouts.jsonl (pass@8=0.000)
+(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
+(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1463] [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1326] [shutdown] EngineCore: exiting busy loop
++ /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase2_grade --config configs/base.yaml --round 0
+[grade] teacher -> [0, 1, 2, 3, 4, 5], student -> [6, 7]
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+/root/anaconda3/envs/python12/lib/python3.12/site-packages/kernels/utils.py:391: FutureWarning: Future versions of `kernels` (>=0.15) will require specifying a kernel version or revision. See: https://huggingface.co/docs/kernels/migration
+  revision = select_revision_or_version(repo_id, revision=revision, version=version)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 23 files: 100%|████████████████████████████████████████████████████████████████| 23/23 [00:01<00:00, 14.02it/s]
+Download complete: :                                                                                |  0.00B           [transformers] You do not have `flash_attn` installed, using `kernels-community/flash-attn2` from the `kernels` library instead!
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 164, in <module>
+    main()
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 108, in main
+    tok, teacher, student = load_pair(cfg)
+                            ^^^^^^^^^^^^^^
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 36, in load_pair
+    teacher = AutoModelForCausalLM.from_pretrained(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 406, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4327, in from_pretrained
+    loading_info, disk_offload_index = cls._load_pretrained_model(model, state_dict, checkpoint_files, load_config)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4407, in _load_pretrained_model
+    expanded_device_map = expand_device_map(load_config.device_map, expected_keys)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 415, in expand_device_map
+    "|".join(rf"({k})" for k in sorted(device_map.keys(), key=lambda x: (x.count("."), len(x)), reverse=True))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 415, in <lambda>
+    "|".join(rf"({k})" for k in sorted(device_map.keys(), key=lambda x: (x.count("."), len(x)), reverse=True))
+                                                                         ^^^^^^^
+AttributeError: 'int' object has no attribute 'count'
+Download complete: :                                                                                |  0.00B
+Reconstruction complete: |                                                                 |  0.00B /  0.00B
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 49, in <module>
+    main()
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 32, in main
+    run([sys.executable, "-m", "gam_opsd.phase2_grade", "--config", args.config,
+  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 15, in run
+    subprocess.run(cmd, check=True)
+  File "/root/anaconda3/envs/python12/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/root/anaconda3/envs/python12/bin/python', '-m', 'gam_opsd.phase2_grade', '--config', 'configs/base.yaml', '--round', '0']' returned non-zero exit status 
