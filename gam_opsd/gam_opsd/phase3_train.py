@@ -15,6 +15,7 @@ route.mode 三档（route.py）：
 训练日志追加 train_log.jsonl。
 """
 import argparse
+import json
 import math
 from pathlib import Path
 
@@ -218,6 +219,14 @@ def main():
     if rank == 0:
         out_dir = Path(t.get("ckpt_dir", "./ckpt"))
         out_dir.mkdir(parents=True, exist_ok=True)
+        # transformers v5 加载时会把 config.architectures 改写成 backbone 类名
+        # （如 Qwen3_5TextModel），vLLM 按该字段分发且不认——回写原始模型声明
+        with open(Path(cfg["student_model"]) / "config.json", encoding="utf-8") as f:
+            orig_meta = json.load(f)
+        fsdp.module.config.architectures = orig_meta.get(
+            "architectures", fsdp.module.config.architectures)
+        fsdp.module.config.model_type = orig_meta.get(
+            "model_type", fsdp.module.config.model_type)
         fsdp.module.config.save_pretrained(out_dir)
         tok.save_pretrained(out_dir)
         from safetensors.torch import save_file
