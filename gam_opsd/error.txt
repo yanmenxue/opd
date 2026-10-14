@@ -1,3 +1,18 @@
-cd /disk1/duhw/code/opd/gam_opsd
-md5sum gam_opsd/phase2_grade.py gam_opsd/phase3_train.py
-grep -c "tokenize=True" gam_opsd/phase2_grade.py gam_opsd/phase3_train.py
+[rank7]: Traceback (most recent call last):
+[rank7]:   File "<frozen runpy>", line 198, in _run_module_as_main
+[rank7]:   File "<frozen runpy>", line 88, in _run_code
+[rank7]:   File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase3_train.py", line 234, in <module>
+[rank7]:     main()
+[rank7]:   File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase3_train.py", line 169, in main
+[rank7]:     adv_t[i, rs:rs + len(a)] = a[:n - rs]
+[rank7]:     ~~~~~^^^^^^^^^^^^^^^^^^^
+[rank7]: TypeError: can't assign a list to a torch.FloatTensor
+[rank3]: Traceback (most recent call last):
+[rank3]:   File "<frozen runpy>", line 198, in _run_module_as_main
+[rank3]:   File "<frozen runpy>", line 88, in _run_code
+[rank3]:   File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase3_train.py", line 234, in <module>
+[rank3]:     main()
+[rank3]:   File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase3_train.py", line 169, in main
+[rank3]:     adv_t[i, rs:rs + len(a)] = a[:n - rs]
+[rank3]:     ~~~~~^^^^^^^^^^^^^^^^^^^
+[rank3]: TypeError: can't assign a list to a torch.FloatTensor
