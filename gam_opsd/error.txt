@@ -3,10 +3,19 @@
   # 应为 f4d62e8d... / c691ed5f... / 9ef714ab...
 
   # 1) 补算 round 0 真实 pass@8(纯 CPU,秒级)
-  python -c "
-  import sys; sys.path.insert(0,'.')
-  from gam_opsd.common import read_jsonl, score_answer
-  rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
-  acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
-  print('round0 true pass@8 =', round(acc, 3))
-  "
+ python -c "
+import sys; sys.path.insert(0,'.')
+from gam_opsd.common import read_jsonl, score_answer
+rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
+acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
+print('round0 true pass@8 =', round(acc, 3))
+ "
+
+>>> import sys; sys.path.insert(0,'.')
+>>> from gam_opsd.common import read_jsonl, score_answer
+main/round_000/rollouts.jsonl')
+acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
+print('round0 true pass@8 =', round(acc, 3))>>> rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
+>>> acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
+>>> print('round0 true pass@8 =', round(acc, 3))
+round0 true pass@8 = 0.793
