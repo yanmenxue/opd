@@ -166,7 +166,7 @@ def main():
             resp_mask[i, rs:n] = torch.tensor(
                 [bool(x) for x in s["sel_mask"][:n - rs]], dtype=torch.bool)
             a = s["adv"]
-            adv_t[i, rs:rs + len(a)] = a[:n - rs]
+            adv_t[i, rs:rs + len(a)] = torch.tensor(a[:n - rs], dtype=torch.float32)
             ol = s["chosen_lp"]
             old_lp[i, rs:rs + len(ol)] = torch.tensor(ol[:n - rs])
 
