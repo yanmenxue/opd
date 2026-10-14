@@ -124,7 +124,7 @@ def main():
         golds = group_correct[r["qid"]]
         mu = sum(golds) / len(golds)
         std = (sum((x - mu) ** 2 for x in golds) / len(golds)) ** 0.5
-        acc_adv = 0.0 if std < 1e-6 else [(x - mu) / std for x in golds]
+        acc_adv = [0.0] * len(golds) if std < 1e-6 else [(x - mu) / std for x in golds]
 
         ps = tok.apply_chat_template(qa_messages(r["question"]),
                                      add_generation_prompt=True)
