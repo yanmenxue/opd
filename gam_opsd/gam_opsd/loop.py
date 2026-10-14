@@ -55,7 +55,8 @@ def main():
 
         ev = cfg["rounds"].get("eval_every", 0)
         if ev and (k + 1) % ev == 0:
-            run([sys.executable, "-m", "gam_opsd.eval_acc", "--config", args.config])
+            run([sys.executable, "-m", "gam_opsd.eval_acc", "--config", args.config,
+                 "--out", str(Path(cfg["work_dir"]) / f"eval_round_{k:03d}.jsonl")])
 
 
 def args_n_gpu():

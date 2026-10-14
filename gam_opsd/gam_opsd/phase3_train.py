@@ -23,8 +23,8 @@ import torch
 import torch.distributed as dist
 
 from .common import (
-    append_jsonl, chat_template_ids, load_config, read_jsonl, round_dir,
-    set_seed,
+    append_jsonl, chat_template_ids, latest_student, load_config, read_jsonl,
+    round_dir, set_seed,
 )
 from .route import gam_advantage
 
@@ -95,9 +95,10 @@ def main():
     torch.cuda.set_device(rank)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    tok = AutoTokenizer.from_pretrained(cfg["student_model"])
+    student_path = latest_student(cfg)  # round≥1 从上一轮 ckpt 续训，而非初始基座
+    tok = AutoTokenizer.from_pretrained(student_path)
     model = AutoModelForCausalLM.from_pretrained(
-        cfg["student_model"], torch_dtype=torch.float32,
+        student_path, torch_dtype=torch.float32,
         attn_implementation="flash_attention_2")
     model.config.use_cache = False
     model.gradient_checkpointing_enable()
