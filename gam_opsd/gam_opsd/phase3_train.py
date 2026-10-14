@@ -22,7 +22,8 @@ import torch
 import torch.distributed as dist
 
 from .common import (
-    append_jsonl, load_config, read_jsonl, round_dir, set_seed,
+    append_jsonl, chat_template_ids, load_config, read_jsonl, round_dir,
+    set_seed,
 )
 from .route import gam_advantage
 
@@ -149,10 +150,8 @@ def main():
         if len(micro) < mb:
             continue
 
-        pids = [tok.apply_chat_template(
-            [{"role": "user", "content": s["question"]}],
-            add_generation_prompt=True, tokenize=True)  # v5 默认 False 返回 str
-            for s in micro]
+        pids = [chat_template_ids(tok, [{"role": "user", "content": s["question"]}])
+                for s in micro]
         maxlen = max(len(p) + len(s["token_ids"]) for p, s in zip(pids, micro))
         pad = tok.pad_token_id or tok.eos_token_id
         ids = torch.full((len(micro), maxlen), pad, dtype=torch.long)

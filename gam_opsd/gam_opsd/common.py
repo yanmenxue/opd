@@ -202,6 +202,15 @@ def score_answer(pred: str, gold: str) -> bool:
         return normalize_answer(pred) == normalize_answer(gold)
 
 
+# ---------- chat 模板 ----------
+def chat_template_ids(tok, conversation):
+    """apply_chat_template 渲染成字符串后手动编码为 ids；不依赖各 transformers
+    版本的 tokenize 默认值与返回类型（v5 起默认 False 返回 str）。"""
+    text = tok.apply_chat_template(conversation, add_generation_prompt=True,
+                                   tokenize=False)
+    return tok(text, add_special_tokens=False)["input_ids"]
+
+
 # ---------- vLLM ----------
 def build_llm(model: str, tp: int, max_model_len: int = 4096, mem_util: float = 0.92):
     from vllm import LLM
