@@ -35,11 +35,13 @@ def load_pair(cfg):
     tok = AutoTokenizer.from_pretrained(student_path)
     teacher = AutoModelForCausalLM.from_pretrained(
         cfg["teacher_model"], torch_dtype=torch.bfloat16,
-        attn_implementation="flash_attention_2", device_map=tmem, max_memory=tmem)
-    teacher.eval()
+        attn_implementation="flash_attention_2",
+        device_map="balanced", max_memory=tmem)  # device_map 只接受层映射/"auto"/"balanced"；
+    teacher.eval()                               # 模型落在哪几张卡由 max_memory 的设备子集决定
     student = AutoModelForCausalLM.from_pretrained(
         student_path, torch_dtype=torch.bfloat16,
-        attn_implementation="flash_attention_2", device_map=smem, max_memory=smem)
+        attn_implementation="flash_attention_2",
+        device_map="balanced", max_memory=smem)
     student.eval()
     return tok, teacher, student
 

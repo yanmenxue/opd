@@ -1,56 +1,12 @@
-Processed prompts: 100%|███| 2048/2048 [18:19<00:00,  1.86it/s, est. speed input: 142.78 toks/s, output: 1899.26 toks/s]
-[rollout] round 0: 256 prompts -> runs/main/round_000/rollouts.jsonl (pass@8=0.000)
-(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
-(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
-(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1463] [shutdown] EngineCore: request processing complete; starting resource teardown
-(EngineCore pid=1541215) INFO 10-14 11:13:22 [core.py:1326] [shutdown] EngineCore: exiting busy loop
-+ /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase2_grade --config configs/base.yaml --round 0
-[grade] teacher -> [0, 1, 2, 3, 4, 5], student -> [6, 7]
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-/root/anaconda3/envs/python12/lib/python3.12/site-packages/kernels/utils.py:391: FutureWarning: Future versions of `kernels` (>=0.15) will require specifying a kernel version or revision. See: https://huggingface.co/docs/kernels/migration
-  revision = select_revision_or_version(repo_id, revision=revision, version=version)
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 23 files: 100%|████████████████████████████████████████████████████████████████| 23/23 [00:01<00:00, 14.02it/s]
-Download complete: :                                                                                |  0.00B           [transformers] You do not have `flash_attn` installed, using `kernels-community/flash-attn2` from the `kernels` library instead!
-[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 164, in <module>
-    main()
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 108, in main
-    tok, teacher, student = load_pair(cfg)
-                            ^^^^^^^^^^^^^^
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/phase2_grade.py", line 36, in load_pair
-    teacher = AutoModelForCausalLM.from_pretrained(
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 406, in from_pretrained
-    return model_class.from_pretrained(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4327, in from_pretrained
-    loading_info, disk_offload_index = cls._load_pretrained_model(model, state_dict, checkpoint_files, load_config)
-                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4407, in _load_pretrained_model
-    expanded_device_map = expand_device_map(load_config.device_map, expected_keys)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 415, in expand_device_map
-    "|".join(rf"({k})" for k in sorted(device_map.keys(), key=lambda x: (x.count("."), len(x)), reverse=True))
-                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 415, in <lambda>
-    "|".join(rf"({k})" for k in sorted(device_map.keys(), key=lambda x: (x.count("."), len(x)), reverse=True))
-                                                                         ^^^^^^^
-AttributeError: 'int' object has no attribute 'count'
-Download complete: :                                                                                |  0.00B
-Reconstruction complete: |                                                                 |  0.00B /  0.00B
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 49, in <module>
-    main()
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 32, in main
-    run([sys.executable, "-m", "gam_opsd.phase2_grade", "--config", args.config,
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/loop.py", line 15, in run
-    subprocess.run(cmd, check=True)
-  File "/root/anaconda3/envs/python12/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/root/anaconda3/envs/python12/bin/python', '-m', 'gam_opsd.phase2_grade', '--config', 'configs/base.yaml', '--round', '0']' returned non-zero exit status 
+ cd /disk1/duhw/code/opd/gam_opsd
+  md5sum gam_opsd/phase1_rollout.py gam_opsd/phase2_grade.py gam_opsd/loop.py
+  # 应为 f4d62e8d... / c691ed5f... / 9ef714ab...
+
+  # 1) 补算 round 0 真实 pass@8(纯 CPU,秒级)
+  python -c "
+  import sys; sys.path.insert(0,'.')
+  from gam_opsd.common import read_jsonl, score_answer
+  rows = read_jsonl('runs/main/round_000/rollouts.jsonl')
+  acc = sum(any(bool(rr['pred']) and score_answer(rr['pred'], r['gold']) for rr in r['responses']) for r in rows) / len(rows)
+  print('round0 true pass@8 =', round(acc, 3))
+  "

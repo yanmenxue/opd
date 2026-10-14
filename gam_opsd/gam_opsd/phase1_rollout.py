@@ -50,13 +50,13 @@ def main():
         rows.append({**r, "responses": resps})
     out_path = round_dir(cfg["work_dir"], k) / "rollouts.jsonl"
     write_jsonl(out_path, rows)
-    acc = sum(any(score_ok(rr) for rr in r["responses"]) for r in rows) / max(len(rows), 1)
+    acc = sum(any(score_ok(rr, r["gold"]) for rr in r["responses"]) for r in rows) / max(len(rows), 1)
     print(f"[rollout] round {k}: {len(rows)} prompts -> {out_path} (pass@{rc['G']}={acc:.3f})")
 
 
-def score_ok(rr):
+def score_ok(rr, gold):
     from .common import score_answer
-    return rr.get("pred") and score_answer(rr["pred"], rr.get("gold", ""))
+    return bool(rr.get("pred")) and score_answer(rr["pred"], gold)
 
 
 if __name__ == "__main__":
