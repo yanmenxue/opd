@@ -230,6 +230,8 @@ def main():
                 orig_meta = json.load(f)
             t_arch = t_arch or orig_meta.get("architectures")
             t_mtype = t_mtype or orig_meta.get("model_type")
+        if isinstance(t_arch, str):  # transformers v5 严格校验：architectures 须为 list[str]
+            t_arch = [t_arch]
         fsdp.module.config.architectures = t_arch
         fsdp.module.config.model_type = t_mtype
         fsdp.module.config.save_pretrained(out_dir)
