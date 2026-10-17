@@ -1,34 +1,30 @@
-cat > /tmp/probe_len.py <<'EOF'
-import statistics, sys
-sys.path.insert(0, '.')
-from gam_opsd.common import build_llm, chat_many, load_config
-from gam_opsd.data import load_eval
-from gam_opsd.prompts import qa_messages
+Processed prompts: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [02:21<00:00,  7.07s/it, est. speed input: 18.43 toks/s, output: 884.13 toks/s]
+m500-0     len= 1612 boxed=1 think=0 tail='oordinates are $(r, \\theta) = \\left(3, \\frac{\\pi}{2}\\right)$.\n\n\\boxed{\\left(3, \\frac{\\pi}{2}\\right)}'
+m500-1     len= 8192 boxed=0 think=1 tail='sums: $\\sum_{n=2}^\\infty \\frac{1}{n^2} - \\sum_{n=2}^\\infty \\frac{1}{n^3}$.\n    6.  Relate to $p$ and'
+m500-2     len= 8192 boxed=1 think=1 tail='ction is not having problem.\n    I will ensure the fraction is not having problem.\n    I will ensure'
+m500-3     len= 1734 boxed=1 think=0 tail=' 9$$\n\nThe positive whole-number divisors of 196 are: 1, 2, 4, 7, 14, 28, 49, 98, and 196.\n\n\\boxed{9}'
+m500-4     len= 8192 boxed=1 think=0 tail='mplies "greatest average speed" in terms of the slope of the line connecting the points?\nNo, average'
+m500-5     len= 3897 boxed=1 think=0 tail=' \\text{ inches} $$\n\n**Final Answer:**\nThe perimeter of the regular hexagon is 42 inches.\n\n\\boxed{42}'
+m500-6     len= 7368 boxed=1 think=1 tail=' 10 = 27$.\nSince 27 is a positive perfect cube ($3^3$), it satisfies all the conditions.\n\n\\boxed{27}'
+m500-7     len= 7922 boxed=1 think=1 tail=' orthogonal (perpendicular). Therefore, the angle between the lines is $90^\\circ$.\n\n\\boxed{90^\\circ}'
+m500-8     len= 1814 boxed=1 think=0 tail='rt{9} \\times \\sqrt{13}$$\n$$d = 3\\sqrt{13}$$\n\nThe distance is $3\\sqrt{13}$ units.\n\n\\boxed{3\\sqrt{13}}'
+m500-9     len= 8192 boxed=0 think=0 tail='\\cdot (4 \\cdot (5 + 1)))$\n     - $(3 \\cdot ((4 \\cdot 5) + 1))$\n     Wait, I think I missed one.\n    '
+m500-10    len= 8192 boxed=0 think=1 tail='y 30.\n202 not div by 30.\n220 not div by 30.\n222 not div by 30.\n4 digits:\nWe need sum divisible by 3.'
+m500-11    len= 8192 boxed=0 think=1 tail='is degree 7.\n    *   $x$ is degree 1.\n    *   So $q(x)$ is degree 7.\n    *   So $q(x) = C(x-2)(x-3)('
+m500-12    len= 5073 boxed=1 think=1 tail='9 + 55 + 110$$\n$$= 174 + 110$$\n$$= 284$$\n\nThe sum of the proper divisors of 220 is 284.\n\n\\boxed{284}'
+m500-13    len= 3229 boxed=1 think=0 tail=' by 9 to isolate $h$:\n$$h = \\frac{45}{9}$$\n$$h = 5$$\n\nThe height of the cylinder is 5 cm.\n\n\\boxed{5}'
+m500-14    len= 8192 boxed=1 think=0 tail='.\nI will ensure the box is the only thing in the box.\nI will ensure the box is the only thing in the'
+m500-15    len= 7639 boxed=1 think=0 tail='$w = (2 + 4) + (-3 - 2)i$$\n$$w = 6 - 5i$$\n\nThus, the complex number $w$ is $6 - 5i$.\n\n\\boxed{6 - 5i}'
+m500-16    len= 2790 boxed=1 think=0 tail='e total sum is:\n$$ 50 \\times (-1) = -50 $$\n\nThus, the value of the expression is $-50$.\n\n\\boxed{-50}'
+m500-17    len= 8192 boxed=0 think=0 tail='ut the sine function is $\\sin(3x + c)$?\n    *   Yes.\n    *   Is it possible that the graph is $y = 2'
+m500-18    len= 8192 boxed=0 think=0 tail='                    *   Also, the label $x^\\circ$ is at `(4.5,3)`. $A$ is at `(2,3)`. $C$ is at `(8,'
+m500-19    len= 8192 boxed=0 think=0 tail='r way to solve this without factorization.\nLet roots be $x_1, x_2, x_3$.\n$x_1 + x_2 + x_3 = -a$\n$x_1'
 
-MODEL = '/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B'
-cfg = load_config('configs/base.yaml')
-rows = load_eval(cfg)[:20]
-llm = build_llm(MODEL, tp=1, max_model_len=10240)
-outs = chat_many(llm, [qa_messages(r['question']) for r in rows],
-               n=1, temperature=0.0, top_p=1.0, max_tokens=8192)
-L, nb, nc, ndone = [], 0, 0, 0
-for r, comps in zip(rows, outs):
-  c = comps[0]; t = c.text; L.append(len(c.token_ids))
-  hb = '\\boxed' in t
-  hc = '</think>' in t          # 模板是 <think>…</think>，开标签在 prompt 里，只在输出找闭标签
-  nb += hb; nc += hb and hc; ndone += hc
-  print("%-10s len=%5d boxed=%d 思考收尾=%d tail=%r"
-        % (r['qid'], len(c.token_ids), hb, hc, t[-90:]))
-s = sorted(L)
-print("\n长度 min=%d p25=%d median=%d p75=%d max=%d mean=%.0f"
-    % (s[0], s[len(s)//4], statistics.median(s), s[3*len(s)//4], s[-1], statistics.mean(s)))
-print("触顶(>=8190) %d/%d   boxed率 %.2f   思考收尾率 %.2f"
-    % (sum(x >= 8190 for x in L), len(L), nb/len(L), ndone/len(L)))
-EOF
-$PY /tmp/probe_len.py
+长度 min=1612 p25=3897 median=8057 p75=8192 max=8192  mean=6250
+触顶(==8192) 10/20   boxed率 0.65   thinking标记率 0.35
 
 
-$PY - <<'EOF'
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
 import glob, json
 def trunc(t): return not t.rstrip().endswith(('.', ')', '}', '$', '"'))
 print("%-32s %6s %8s %10s %8s %8s" % ("file", "acc", "boxed率", "boxed后正确", "均长", "截断率"))
@@ -40,3 +36,9 @@ for p in sorted(glob.glob('runs/main/eval_*t4096*.jsonl')) + sorted(glob.glob('r
       sum(r['correct'] for r in box)/max(len(box),1),
       sum(len(r['raw']) for r in rows)/n, sum(trunc(r['raw']) for r in rows)/n))
 EOF
+file                                acc   boxed率   boxed后正确       均长      截断率
+eval_base_t4096.jsonl            0.3700    0.516      0.636     9283    0.580
+eval_r019_t4096.jsonl            0.5560    0.658      0.815     7078    0.384
+eval_round_019.jsonl             0.2820    0.318      0.774     2538    0.744
+eval_base.jsonl                  0.0900    0.196      0.255     2644    0.768
+(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
