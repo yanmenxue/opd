@@ -1,121 +1,164 @@
- /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase1_rollout --config configs/base.yaml --round 19
-[serving] 前缀 'model.language_'：替换文本张量 426/427，visual 等其余 312 个保持原样
-[serving] 文本权重已替换为学生 ckpt -> runs/main/serving_student
-INFO 10-17 11:47:11 [api_utils.py:273] non-default args: {'dtype': 'bfloat16', 'max_model_len': 2112, 'enable_prefix_caching': True, 'disable_log_stats': True, 'model': 'runs/main/serving_student'}
-INFO 10-17 11:47:11 [model.py:623] Resolved architecture: Qwen3_5ForConditionalGeneration
-INFO 10-17 11:47:11 [model.py:1788] Using max model len 2112
-INFO 10-17 11:47:11 [scheduler.py:252] Chunked prefill is enabled with max_num_batched_tokens=8192.
-WARNING 10-17 11:47:11 [config.py:563] Mamba cache mode is set to 'align' for Qwen3_5ForConditionalGeneration by default when prefix caching is enabled
-INFO 10-17 11:47:11 [config.py:583] Warning: Prefix caching in Mamba cache 'align' mode is currently enabled. Its support for Mamba layers is experimental. Please report any issues you may observe.
-INFO 10-17 11:47:11 [vllm.py:1109] Asynchronous scheduling is enabled.
-INFO 10-17 11:47:11 [kernel.py:295] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
-[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
-WARNING 10-17 11:47:23 [system_utils.py:157] We must use the `spawn` multiprocessing start method. Overriding VLLM_WORKER_MULTIPROC_METHOD to 'spawn'. See https://docs.vllm.ai/en/latest/usage/troubleshooting.html#python-multiprocessing for more information. Reasons: CUDA is initialized
-(EngineCore pid=164341) INFO 10-17 11:47:31 [core.py:116] Initializing a V1 LLM engine (v0.26.0) with config: model='runs/main/serving_student', speculative_config=None, tokenizer='runs/main/serving_student', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2112, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=runs/main/serving_student, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
-(EngineCore pid=164341) INFO 10-17 11:47:33 [parallel_state.py:1615] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://10.50.91.125:53943 backend=nccl
-(EngineCore pid=164341) INFO 10-17 11:47:33 [parallel_state.py:1946] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
-(EngineCore pid=164341) INFO 10-17 11:47:34 [topk_topp_sampler.py:55] Using FlashInfer for top-p & top-k sampling.
-(EngineCore pid=164341) [transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
-(EngineCore pid=164341) INFO 10-17 11:47:41 [gpu_model_runner.py:5250] Starting to load model runs/main/serving_student...
-(EngineCore pid=164341) INFO 10-17 11:47:42 [cuda.py:541] Using backend AttentionBackendEnum.FLASH_ATTN for vit attention
-(EngineCore pid=164341) INFO 10-17 11:47:42 [mm_encoder_attention.py:373] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.
-(EngineCore pid=164341) INFO 10-17 11:47:42 [qwen_gdn_linear_attn.py:150] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).
-(EngineCore pid=164341) INFO 10-17 11:47:42 [cuda.py:482] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
-(EngineCore pid=164341) INFO 10-17 11:47:42 [flash_attn.py:776] Using FlashAttention version 2
-(EngineCore pid=164341) INFO 10-17 11:47:42 [weight_utils.py:869] Filesystem type for checkpoints: EXT4. Checkpoint size: 8.68 GiB. Available RAM: 466.97 GiB.
-(EngineCore pid=164341) INFO 10-17 11:47:42 [weight_utils.py:892] Auto-prefetch is disabled because the filesystem (EXT4) is not 
+  cd /disk1/duhw/code/opd/gam_opsd
+  PY=/root/anaconda3/envs/python12/bin/python
 
-Rendering conversations:   0%|          | 0/256 [00:00<?, ?it/s]INFO 10-17 11:48:07 [hf.py:540] Detected the chat template content format to be 'openai'. You can set `--chat-template-content-format` to override this.
+  0. 产出盘点
 
-Rendering conversations:   0%|          | 1/256 [00:00<03:28,  1.23it/s](EngineCore pid=164341) WARNING 10-17 11:48:07 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+  ls -la runs/main/
+  ls -la runs/main/serving_student/
+  ls -la ckpt/
+  ls -la runs/main/round_019/
+  ls runs/main/eval_round_*.jsonl 2>/dev/null || echo "== 没有任何 eval 文件 =="
+  find . -maxdepth 3 -name "model.safetensors" -printf '%p  %s bytes  %TY-%Tm-%Td %TH:%TM\n'
+  wc -l runs/main/prompts.jsonl
+  cat runs/main/train_log.jsonl
+  cat runs/main/gam_diag.jsonl
 
-Rendering conversations:  45%|████▍     | 114/256 [00:00<00:00, 169.22it/s]
-Rendering conversations:  91%|█████████▏| 234/256 [00:01<00:00, 349.86it/s]
-Rendering conversations: 100%|██████████| 256/256 [00:01<00:00, 247.24it/s]
+  重点看两处：serving_student/ 里是否真有 config.json 和 tokenizer 文件（当前代码不写它们）；train_log.jsonl 有几行（20 轮应该 20 行）。
 
-Processed prompts:   0%|          | 0/2048 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=164341) WARNING 10-17 11:48:07 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-(EngineCore pid=164341) WARNING 10-17 11:48:28 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+  1. 权重差 —— 判定训练到底推动了多少（最关键）
 
-Processed prompts:   0%|          | 8/2048 [01:15<5:21:31,  9.46s/it, est. speed input: 6.45 toks/s, output: 83.08 toks/s]
-Processed prompts:   5%|▌         | 112/2048 [01:15<15:37,  2.06it/s, est. speed input: 114.31 toks/s, output:
-sed prompts: 100%|██████████| 2048/2048 [16:33<00:00,  1.63it/s, est. speed input: 168.26 toks/s, output: 2048.99 toks/s]
-Processed prompts: 100%|██████████| 2048/2048 [16:33<00:00,  2.06it/s, est. speed input: 168.26 toks/s, output: 2048.99 toks/s]
-(EngineCore pid=164341) INFO 10-17 12:04:44 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
-(EngineCore pid=164341) INFO 10-17 12:04:44 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
-(EngineCore pid=164341) INFO 10-17 12:04:44 [core.py:1463] [shutdown] EngineCore: request processing complete; starting resource teardown
-(EngineCore pid=164341) INFO 10-17 12:04:44 [core.py:1326] [shutdown] EngineCore: exiting busy loop
-[rollout] round 19: 256 prompts -> runs/main/round_019/rollouts.jsonl (pass@8=0.887)
-+ /root/anaconda3/envs/python12/bin/python -m gam_opsd.phase2_grade --config configs/base.yaml --round 19
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
-[grade] teacher -> [0, 1, 2, 3, 4, 5], student -> [6, 7]
+  $PY - <<'EOF'
+  from pathlib import Path
+  from safetensors import safe_open
+  BASE=Path('/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B')
+  CKPT=Path('ckpt/model.safetensors')
+  bp={}
+  for p in sorted(BASE.glob('*.safetensors')):
+      with safe_open(p,framework='pt') as f:
+          for k in f.keys():
+              if k.startswith('model.language_model.'):
+                  bp[k[len('model.language_model.'):]]=p
+  sf=safe_open(CKPT,framework='pt'); sk=list(sf.keys())
+  print("base 文本张量:",len(bp)," ckpt 张量:",len(sk))
+  print("ckpt 样例:",sk[:2]); print("base 样例:",list(bp)[:2])
+  rows=[]
+  for k in sk:
+      if k not in bp: continue
+      with safe_open(bp[k],framework='pt') as f: b=f.get_tensor('model.language_model.'+k).float()
+      s=sf.get_tensor(k).float(); scale=b.abs().mean().item()+1e-12
+      rows.append(((b-s).abs().max().item()/scale,k))
+  rows.sort(reverse=True)
+  print("对齐 %d/%d 张量，平均相对变化 %.3e" % (len(rows),len(sk),sum(r for r,_ in rows)/max(len(rows),1)))
+  for r,k in rows[:12]: print("  %.3e  %s" % (r,k))
+  EOF
 
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]
-Loading weights:   0%|          | 1/426 [00:00<01:57,  3.63it/s]
-Loading weights:  15%|█▌        | 65/426 [00:00<00:01, 217.10it/s]
-Loading weights:  24%|██▍       | 102/426 [00:00<00:01, 199.17it/s]
-Loading weights:  31%|███       | 130/426 [00:00<00:01, 201.41it/s]
-Loading weights:  36%|███▋      | 155/426 [00:00<00:01, 171.70it/s]
-Loading weights:  41%|████▏     | 176/426 [00:01<00:01, 176.75it/s]
-Loading weights:  47%|████▋     | 199/426 [00:01<00:01, 189.47it/s]
-Loading weights:  52%|█████▏    | 221/426 [00:01<00:01, 179.82it/s]
-Loading weights:  57%|█████▋    | 241/426 [00:01<00:01, 166.37it/s]
-Loading weights:  61%|██████    | 259/426 [00:01<00:01, 156.09it/s
-Loading weights: 100%|██████████| 427/427 [00:03<00:00, 130.02it/s]
-[grade] 100 responses
-[grade] 200 responses
-[grade] 300 responses
-[grade] 400 responses
-[grade] 500 responses
-[grade] 600 responses
-[grade] 700 responses
-[grade] 800 responses
-[grade] 900 responses
-[grade] 1000 responses
-[grade] 1100 responses
-[grade] 1200 responses
-[grade] 1300 responses
-[grade] 1400 responses
-[grade] 1500 responses
-[grade] 1600 responses
-[grade] 1700 responses
-[grade] 1800 responses
-[grade] 1900 responses
-[grade] 2000 responses
-[grade] round 19: mean per-token a = -0.0119 (E[a]=-KL, 应 ≤ 0) -> graded.jsonl
-+ /root/anaconda3/envs/python12/bin/python -m torch.distributed.run --nproc_per_node=8 -m gam_opsd.phase3_train --config configs/base.yaml --round 19
+  判读：平均相对变化在 1e-6 量级 = 权重基本没动（就是没训起来）；1e-3 以上 = 确实在学。这个数比 loss 可靠得多。
 
-*****************************************
-Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
-*****************************************
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-[transformers] Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3_5ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("meta-llama/Llama-3.2-1B", attn_implementation="flash_attention_2", dtype=torch.float16)`
-[transformers] Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3_5TextModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("meta-llama/Llama-3.2-1B", attn_implementation="flash_attention_2", dtype=torch.float16)`
-[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  2. 补上缺失的基线（需一张空闲卡）
 
-Loading weights:   0%|          | 0/427 [00:00<?, ?it/s][transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-ing weights:  99%|█████████▊| 421/427 [00:03<00:00, 158.45it/s]
-Loading weights: 100%|██████████| 427/427 [00:03<00:00, 109.08it/s]
-[train] round 19 arm=opd_acc: 2048 samples
-[train] route mode=dynamic tau=0.5 window=16: frac_step_tokens=0.6469165699964323
-[train] dispersion mean=0.932 median=0.158 corr(disp,steplen)=-0.035628597343384104
-poissongpu006:196774:196774 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-
-[train] step 5/16 loss=0.0163
-[train] step 10/16 loss=-0.0002
-[train] step 15/16 loss=-0.0003
-/root/anaconda3/envs/python12/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
-  return func(*args, **kwargs)
-Processed prompts: 100%|██████████| 500/500 [03:48<00:00,  2.19it/s, est. speed input: 223.55 toks/s, output: 2207.68 toks/s]
-(EngineCore pid=215353) INFO 10-17 13:06:11 [core.py:1313] [shutdown] EngineCore: trigger received signal=SIGTERM
-(EngineCore pid=215353) INFO 10-17 13:06:11 [core.py:1432] [shutdown] EngineCore: start mode=abort timeout=0s
-(EngineCore pid=215353) INFO 10-17 13:06:11 [core.py:1463] [shutdown] EngineCore: request processing complete; starting resource teardown
-(EngineCore pid=215353) INFO 10-17 13:06:11 [core.py:1326] [shutdown] EngineCore: exiting busy loop
-[eval] runs/main/serving_student
-[eval] accuracy: 0.2820 (141/500)
-[eval]   level 1: 0.6744 (29/43)
-[eval]   level 2: 0.5222 (47/90)
-[eval]   level 3: 0.3524 (37/105)
-[eval]   level 4: 0.1484 (19/128)
-[eval]   level 5: 0.0672 (9/134)
+  $PY -m gam_opsd.eval_acc --config configs/base.yaml \
+    --model /disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B \
+    --out runs/main/eval_base.jsonl
 
+  同一套 greedy、同一 1024 预算，和 round 19 的 0.2820 可直接比。约 4 分钟。
+
+  3. 优势量级分解 + 路由分布
+
+  $PY - <<'EOF'
+  import json
+  from gam_opsd.route import gam_advantage
+  rows=[json.loads(l) for l in open('runs/main/round_019/graded.jsonl',encoding='utf-8')]
+  infos=[]; A=[]; C=[]
+  for row in rows:
+      for resp in row['responses']:
+          a=resp.get('a') or []
+          if not a: continue
+          _,_,info=gam_advantage(a, resp.get('step_spans'), mode='dynamic', tau=0.5, window=16,
+              eps=1e-6, w_kl=1.0, lambda_step=1.0, adv_norm=False,
+              correct=resp.get('correct',False), correct_scale=1.0,
+              acc_adv=resp.get('acc_adv'), lambda_acc=1.0)
+          infos.append(info)
+          A.append(sum(abs(x) for x in a)/len(a))
+          C.append(abs(resp.get('acc_adv') or 0.0))
+  agg=lambda k:(lambda v: sum(v)/len(v) if v else float('nan'))([i[k] for i in infos if i.get(k) is not None])
+  for k in ['disp_mean','disp_median','disp_p25','disp_p75',
+            'frac_step_tokens','frac_steps_routed','n_steps','corr_disp_steplen']:
+      print("%-20s %.4f" % (k, agg(k)))
+  print("%-20s %.5f   <- 蒸馏项 w_kl·|a_t|" % ('mean|a_t|', sum(A)/len(A)))
+  print("%-20s %.5f   <- RL 项 |acc_adv|"  % ('mean|acc_adv|', sum(C)/len(C)))
+  print("RL / 蒸馏 幅度比 ≈ %.0fx" % (sum(C)/max(sum(A),1e-9)))
+  print("acc_adv==0 的响应占比 %.1f%%  (组内 8 条同对/同错)" % (100*sum(x==0 for x in C)/len(C)))
+  print("响应数 %d" % len(infos))
+  EOF
+
+  disp_p25/p75、frac_steps_routed 是 trainer 算了但没打印的三个数，判断 τ 该怎么定就看它们。
+
+  4. eval 趋势（4 / 9 / 14 / 19 轮）
+
+  $PY - <<'EOF'
+  import json, glob, collections
+  for p in sorted(glob.glob('runs/main/eval_round_*.jsonl')):
+      rows=[json.loads(l) for l in open(p,encoding='utf-8')]
+      n=len(rows); ok=sum(r['correct'] for r in rows)
+      lv=collections.defaultdict(lambda:[0,0])
+      for r in rows:
+          lv[r.get('level') or '-'][0]+=r['correct']; lv[r.get('level') or '-'][1]+=1
+      print("%-34s acc=%.4f (%d/%d)  " % (p, ok/n, ok, n) +
+            " ".join("L%s:%.3f" % (k,c/t) for k,(c,t) in sorted(lv.items())))
+  EOF
+
+  5. 截断 / \boxed 缺失率
+
+  $PY - <<'EOF'
+  import json, statistics
+  rows=[json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl',encoding='utf-8')]
+  txt=[x['text'] for r in rows for x in r['responses']]
+  L=[len(x['token_ids']) for r in rows for x in r['responses']]
+  print("rollout n=%d  无\\boxed %.1f%%  长度 mean=%.0f median=%.0f max=%d  触顶(>=1020) %.1f%%"
+        % (len(txt), 100*sum('\\boxed' not in t for t in txt)/len(txt),
+           statistics.mean(L), statistics.median(L), max(L), 100*sum(x>=1020 for x in L)/len(L)))
+  rows=[json.loads(l) for l in open('runs/main/eval_round_019.jsonl',encoding='utf-8')]
+  print("eval    n=%d  无\\boxed %.1f%%  结尾无标点(疑似截断) %.1f%%"
+        % (len(rows), 100*sum('\\boxed' not in r['raw'] for r in rows)/len(rows),
+           100*sum(not r['raw'].rstrip().endswith(('.',')','}','$')) for r in rows)/len(rows)))
+  EOF
+
+  （最后一行括号写错了，用下面这版）
+
+  $PY - <<'EOF'
+  import json, statistics
+  rows=[json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl',encoding='utf-8')]
+  txt=[x['text'] for r in rows for x in r['responses']]
+  L=[len(x['token_ids']) for r in rows for x in r['responses']]
+  print("rollout n=%d  无\\boxed %.1f%%  长度 mean=%.0f median=%.0f max=%d  触顶(>=1020) %.1f%%"
+        % (len(txt), 100*sum('\\boxed' not in t for t in txt)/len(txt),
+           statistics.mean(L), statistics.median(L), max(L), 100*sum(x>=1020 for x in L)/len(L)))
+  rows=[json.loads(l) for l in open('runs/main/eval_round_019.jsonl',encoding='utf-8')]
+  bad=sum(not r['raw'].rstrip().endswith(('.',')','}','$')) for r in rows)
+  print("eval    n=%d  无\\boxed %.1f%%" % (len(rows), 100*sum('\\boxed' not in r['raw'] for r in rows)/len(rows)))
+  EOF
+
+  两个 python - 块我上面写坏了，直接用这一份：
+
+  $PY - <<'EOF'
+  import json, statistics
+  rows=[json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl',encoding='utf-8')]
+  txt=[x['text'] for r in rows for x in r['responses']]
+  L=[len(x['token_ids']) for r in rows for x in r['responses']]
+  n=len(txt)
+  print("rollout n=%d  无 boxed %.1f%%  长度 mean=%.0f median=%.0f max=%d  触顶(>=1020) %.1f%%" % (
+      n, 100*sum('\\boxed' not in t for t in txt)/n,
+      statistics.mean(L), statistics.median(L), max(L),
+      100*sum(x>=1020 for x in L)/n))
+  rows=[json.loads(l) for l in open('runs/main/eval_round_019.jsonl',encoding='utf-8')]
+  m=len(rows)
+  print("eval    n=%d  无 boxed %.1f%%" % (m, 100*sum('\\boxed' not in r['raw'] for r in rows)/m))
+  EOF
+
+  6. serving 里没被替换的那个张量
+
+  $PY - <<'EOF'
+  from pathlib import Path
+  from safetensors import safe_open
+  sd=Path('runs/main/serving_student')
+  ok=set()
+  for p in sd.glob('*.safetensors'):
+      with safe_open(p,framework='pt') as f: ok|=set(f.keys())
+  pref=""
+  for k in sorted(ok):
+      if k.endswith("model.embed_tokens.weight"):
+          pref=k[:-len("model.embed_tokens.weight")]; break
+  with safe_open('ckpt/model.safetensors',framework='pt') as f: sk=list(f.keys())
+  print("prefix=%r  原始张量=%d  学生张量=%d" % (pref,len(ok),len(sk)))
+  print("未被替换:", [k for k in sk if pref+k not in ok])
+  EOF
