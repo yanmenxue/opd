@@ -1,270 +1,90 @@
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# ls -la runs/main/
-ls -la runs/main/serving_student/
-ls -la ckpt/
-ls -la runs/main/round_019/
-ls runs/main/eval_round_*.jsonl 2>/dev/null || echo "== 没有任何 eval 文件 =="
-find . -maxdepth 3 -name "model.safetensors" -printf '%p  %s bytes  %TY-%Tm-%Td %TH:%TM\n'
-wc -l runs/main/prompts.jsonl
-cat runs/main/train_log.jsonl
-cat runs/main/gam_diag.jsonl
-total 6024
-drwxr-xr-x 23 root root    4096 Oct 17 13:06 .
-drwxr-xr-x  3 root root    4096 Oct 10 20:55 ..
--rw-r--r--  1 root root 1470263 Oct 16 18:37 eval_round_004.jsonl
--rw-r--r--  1 root root 1465343 Oct 17 00:52 eval_round_009.jsonl
--rw-r--r--  1 root root 1463567 Oct 17 07:06 eval_round_014.jsonl
--rw-r--r--  1 root root 1474476 Oct 17 13:06 eval_round_019.jsonl
--rw-r--r--  1 root root    6637 Oct 17 13:00 gam_diag.jsonl
--rw-r--r--  1 root root  178052 Oct 13 22:54 prompts.jsonl
-drwxr-xr-x  2 root root    4096 Oct 14 19:49 round_000
-drwxr-xr-x  2 root root    4096 Oct 16 20:07 round_001
-drwxr-xr-x  2 root root    4096 Oct 16 16:02 round_002
-drwxr-xr-x  2 root root    4096 Oct 16 17:13 round_003
-drwxr-xr-x  2 root root    4096 Oct 16 18:29 round_004
-drwxr-xr-x  2 root root    4096 Oct 16 19:56 round_005
-drwxr-xr-x  2 root root    4096 Oct 16 21:15 round_006
-drwxr-xr-x  2 root root    4096 Oct 16 22:25 round_007
-drwxr-xr-x  2 root root    4096 Oct 16 23:36 round_008
-drwxr-xr-x  2 root root    4096 Oct 17 00:47 round_009
-drwxr-xr-x  2 root root    4096 Oct 17 02:01 round_010
-drwxr-xr-x  2 root root    4096 Oct 17 03:12 round_011
-drwxr-xr-x  2 root root    4096 Oct 17 04:25 round_012
-drwxr-xr-x  2 root root    4096 Oct 17 05:43 round_013
-drwxr-xr-x  2 root root    4096 Oct 17 07:00 round_014
-drwxr-xr-x  2 root root    4096 Oct 17 08:16 round_015
-drwxr-xr-x  2 root root    4096 Oct 17 09:27 round_016
-drwxr-xr-x  2 root root    4096 Oct 17 10:37 round_017
-drwxr-xr-x  2 root root    4096 Oct 17 11:46 round_018
-drwxr-xr-x  2 root root    4096 Oct 17 13:00 round_019
-drwxr-xr-x  2 root root    4096 Oct 17 13:01 serving_student
--rw-r--r--  1 root root    7888 Oct 17 13:00 train_log.jsonl
-total 9123900
-drwxr-xr-x  2 root root       4096 Oct 17 13:01 .
-drwxr-xr-x 23 root root       4096 Oct 17 13:06 ..
--rw-r--r--  1 root root         45 Oct 17 13:01 .built_for
--rw-r--r--  1 root root       7756 Oct  8 20:24 chat_template.jinja
--rw-r--r--  1 root root       3161 Oct  8 20:24 config.json
--rw-r--r--  1 root root         73 Oct  8 20:24 configuration.json
--rw-r--r--  1 root root      11343 Oct  8 20:24 LICENSE
--rw-r--r--  1 root root         40 Oct  8 20:26 .mdl
--rw-r--r--  1 root root    3353259 Oct  8 20:24 merges.txt
--rw-------  1 root root 9319821272 Oct 17 13:00 model.safetensors
--rw-------  1 root root       1103 Oct  8 21:59 .msc
--rw-r--r--  1 root root         36 Oct  8 21:59 .mv
--rw-r--r--  1 root root        390 Oct  8 20:24 preprocessor_config.json
--rw-r--r--  1 root root      77661 Oct  8 20:24 README.md
--rw-r--r--  1 root root      16710 Oct  8 20:24 tokenizer_config.json
--rw-r--r--  1 root root   12807982 Oct  8 20:25 tokenizer.json
--rw-r--r--  1 root root        385 Oct  8 20:24 video_preprocessor_config.json
--rw-r--r--  1 root root    6722759 Oct  8 20:25 vocab.json
-total 9475560
-drwxr-xr-x 2 root root       4096 Oct 17 13:00 .
-drwxr-xr-x 6 root root       4096 Oct 17 15:32 ..
--rw-r--r-- 1 root root       7756 Oct 17 13:00 chat_template.jinja
--rw-r--r-- 1 root root       1977 Oct 17 13:00 config.json
--rw------- 1 root root 9682950504 Oct 17 13:00 model.safetensors
--rw-r--r-- 1 root root       1124 Oct 17 13:00 tokenizer_config.json
--rw-r--r-- 1 root root   19989325 Oct 17 13:00 tokenizer.json
-total 129132
-drwxr-xr-x  2 root root     4096 Oct 17 13:00 .
-drwxr-xr-x 23 root root     4096 Oct 17 13:06 ..
--rw-r--r--  1 root root        0 Oct 17 13:00 _done
--rw-r--r--  1 root root 70230330 Oct 17 12:34 graded.jsonl
--rw-r--r--  1 root root 61987528 Oct 17 12:04 rollouts.jsonl
-runs/main/eval_round_004.jsonl  runs/main/eval_round_009.jsonl  runs/main/eval_round_014.jsonl  runs/main/eval_round_019.jsonl
-./ckpt/model.safetensors  9682950504 bytes  2026-10-17 13:00
-918 runs/main/prompts.jsonl
-{"round": 0, "loss": 0.0002075401093506457, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9436251059438258, "disp_median": 0.16882513909941835, "disp_p25": 0.05288812366797079, "disp_p75": 0.5254718730773584, "frac_step_tokens": 0.5156614145528055, "n_steps": 8.41064453125, "frac_steps_routed": 0.5545238329520172, "corr_disp_steplen": -0.1462118013304806}
-{"round": 1, "loss": 0.009707878660297098, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9499296985762747, "disp_median": 0.18490295844336638, "disp_p25": 0.062230846645248666, "disp_p75": 0.5405614081152871, "frac_step_tokens": 0.6231692929295295, "n_steps": 7.77099609375, "frac_steps_routed": 0.5546065189727226, "corr_disp_steplen": -0.044546213679039125}
-{"round": 2, "loss": -0.0017974578524047047, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9518513862731262, "disp_median": 0.1910925133596472, "disp_p25": 0.0625286995980636, "disp_p75": 0.5646464874375073, "frac_step_tokens": 0.6308643358437322, "n_steps": 7.3017578125, "frac_steps_routed": 0.5601865067774529, "corr_disp_steplen": -0.06288174508928136}
-{"round": 3, "loss": -0.006146794552080337, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9513412840399351, "disp_median": 0.17419968684776568, "disp_p25": 0.056024042614332636, "disp_p75": 0.5247820628734244, "frac_step_tokens": 0.6161868418433606, "n_steps": 7.7666015625, "frac_steps_routed": 0.5372860564053358, "corr_disp_steplen": -0.047847246679488836}
-{"round": 4, "loss": 0.009283810616501853, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9568763302392818, "disp_median": 0.18962894399032826, "disp_p25": 0.06319386508561181, "disp_p75": 0.5492607983037137, "frac_step_tokens": 0.6187738579629652, "n_steps": 7.7197265625, "frac_steps_routed": 0.5472381954157846, "corr_disp_steplen": -0.04648104251565864}
-{"round": 5, "loss": -0.015696062691070267, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9449928144601091, "disp_median": 0.18855246793568764, "disp_p25": 0.06099943552440762, "disp_p75": 0.5471670024591648, "frac_step_tokens": 0.642154506143195, "n_steps": 7.0302734375, "frac_steps_routed": 0.5606036611985346, "corr_disp_steplen": -0.054121456319270185}
-{"round": 6, "loss": -0.0169797328433674, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9475693365150537, "disp_median": 0.17219069199145284, "disp_p25": 0.05720285403063959, "disp_p75": 0.5184862186991251, "frac_step_tokens": 0.6154758146912525, "n_steps": 7.40087890625, "frac_steps_routed": 0.5317945739675688, "corr_disp_steplen": -0.05146749512855392}
-{"round": 7, "loss": -0.005244844576512975, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9492128314729295, "disp_median": 0.18126965537938466, "disp_p25": 0.05770064099853016, "disp_p75": 0.5267638524669465, "frac_step_tokens": 0.618806141674048, "n_steps": 7.38525390625, "frac_steps_routed": 0.5448609964830048, "corr_disp_steplen": -0.04772001080850089}
-{"round": 8, "loss": -0.00742467913435263, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9469955571290664, "disp_median": 0.17949154189034586, "disp_p25": 0.05982617876330515, "disp_p75": 0.5174458309844062, "frac_step_tokens": 0.6388587148563121, "n_steps": 7.09228515625, "frac_steps_routed": 0.5572015785489736, "corr_disp_steplen": -0.045698287933438685}
-{"round": 9, "loss": 0.001436145161548552, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.945225196506325, "disp_median": 0.18654618170053178, "disp_p25": 0.0608480323689951, "disp_p75": 0.5372102909237461, "frac_step_tokens": 0.6300534507606926, "n_steps": 7.08935546875, "frac_steps_routed": 0.5557439463607216, "corr_disp_steplen": -0.051974237763765356}
-{"round": 10, "loss": -0.00499459471256003, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9432206302262629, "disp_median": 0.1715463663535649, "disp_p25": 0.05675480189980844, "disp_p75": 0.49756401417736623, "frac_step_tokens": 0.6085464086488744, "n_steps": 7.37744140625, "frac_steps_routed": 0.5300910125289666, "corr_disp_steplen": -0.03412652305300201}
-{"round": 11, "loss": -0.01896113073161132, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9489464791519989, "disp_median": 0.17385483202516946, "disp_p25": 0.0558230765717164, "disp_p75": 0.506911982672102, "frac_step_tokens": 0.6031560683835065, "n_steps": 7.3125, "frac_steps_routed": 0.5358175902753874, "corr_disp_steplen": -0.04024183540477447}
-{"round": 12, "loss": 0.003189890345277391, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9348697827964185, "disp_median": 0.17095365156177775, "disp_p25": 0.05523234617162123, "disp_p75": 0.4992876650442028, "frac_step_tokens": 0.6363482559548075, "n_steps": 6.71533203125, "frac_steps_routed": 0.5548328607993821, "corr_disp_steplen": -0.03965486489974725}
-{"round": 13, "loss": -6.814895870377313e-05, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.940291386795378, "disp_median": 0.16454797213743136, "disp_p25": 0.05563068680362895, "disp_p75": 0.4802374626788224, "frac_step_tokens": 0.6182678569073335, "n_steps": 6.9404296875, "frac_steps_routed": 0.5440078375647718, "corr_disp_steplen": -0.05537903391096407}
-{"round": 14, "loss": -0.010641968822715953, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9376180229171738, "disp_median": 0.16616819970313507, "disp_p25": 0.05338786475779738, "disp_p75": 0.490663360502489, "frac_step_tokens": 0.6266079852917956, "n_steps": 6.98388671875, "frac_steps_routed": 0.5496527735947564, "corr_disp_steplen": -0.037829985153995264}
-{"round": 15, "loss": -0.03125336004119772, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9345085888339613, "disp_median": 0.16582660564690105, "disp_p25": 0.055618018849567845, "disp_p75": 0.47221953960171065, "frac_step_tokens": 0.6470870502832528, "n_steps": 6.65966796875, "frac_steps_routed": 0.563367213150935, "corr_disp_steplen": -0.03682778111658689}
-{"round": 16, "loss": -0.02474591019134209, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9336928385179114, "disp_median": 0.16300613437696818, "disp_p25": 0.052412853911593144, "disp_p75": 0.48767057951018417, "frac_step_tokens": 0.6432117115123491, "n_steps": 6.62744140625, "frac_steps_routed": 0.5773202074864379, "corr_disp_steplen": -0.05252244530293043}
-{"round": 17, "loss": 0.005115965628014862, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9363034350707077, "disp_median": 0.15534593436644561, "disp_p25": 0.050053435940227334, "disp_p75": 0.47264058533208353, "frac_step_tokens": 0.6065325712464811, "n_steps": 6.962890625, "frac_steps_routed": 0.5481365104550064, "corr_disp_steplen": -0.0463044781287188}
-{"round": 18, "loss": -0.015108688280520255, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9401327539670905, "disp_median": 0.153015816632481, "disp_p25": 0.0481383522196776, "disp_p75": 0.45843215560646483, "frac_step_tokens": 0.5983122419365652, "n_steps": 7.26513671875, "frac_steps_routed": 0.5312599154990124, "corr_disp_steplen": -0.03970969364478426}
-{"round": 19, "loss": -0.0023698503924971526, "steps": 16, "n_samples": 2048, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9323735612227282, "disp_median": 0.15821758657840895, "disp_p25": 0.052453853689126424, "disp_p75": 0.4611927584580892, "frac_step_tokens": 0.6469165699964323, "n_steps": 6.51904296875, "frac_steps_routed": 0.5739930296620467, "corr_disp_steplen": -0.035628597343384104}
-{"round": 0, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9436251059438258, "disp_median": 0.16882513909941835, "disp_p25": 0.05288812366797079, "disp_p75": 0.5254718730773584, "frac_step_tokens": 0.5156614145528055, "n_steps": 8.41064453125, "frac_steps_routed": 0.5545238329520172, "corr_disp_steplen": -0.1462118013304806}
-{"round": 1, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9499296985762747, "disp_median": 0.18490295844336638, "disp_p25": 0.062230846645248666, "disp_p75": 0.5405614081152871, "frac_step_tokens": 0.6231692929295295, "n_steps": 7.77099609375, "frac_steps_routed": 0.5546065189727226, "corr_disp_steplen": -0.044546213679039125}
-{"round": 2, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9518513862731262, "disp_median": 0.1910925133596472, "disp_p25": 0.0625286995980636, "disp_p75": 0.5646464874375073, "frac_step_tokens": 0.6308643358437322, "n_steps": 7.3017578125, "frac_steps_routed": 0.5601865067774529, "corr_disp_steplen": -0.06288174508928136}
-{"round": 3, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9513412840399351, "disp_median": 0.17419968684776568, "disp_p25": 0.056024042614332636, "disp_p75": 0.5247820628734244, "frac_step_tokens": 0.6161868418433606, "n_steps": 7.7666015625, "frac_steps_routed": 0.5372860564053358, "corr_disp_steplen": -0.047847246679488836}
-{"round": 4, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9568763302392818, "disp_median": 0.18962894399032826, "disp_p25": 0.06319386508561181, "disp_p75": 0.5492607983037137, "frac_step_tokens": 0.6187738579629652, "n_steps": 7.7197265625, "frac_steps_routed": 0.5472381954157846, "corr_disp_steplen": -0.04648104251565864}
-{"round": 5, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9449928144601091, "disp_median": 0.18855246793568764, "disp_p25": 0.06099943552440762, "disp_p75": 0.5471670024591648, "frac_step_tokens": 0.642154506143195, "n_steps": 7.0302734375, "frac_steps_routed": 0.5606036611985346, "corr_disp_steplen": -0.054121456319270185}
-{"round": 6, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9475693365150537, "disp_median": 0.17219069199145284, "disp_p25": 0.05720285403063959, "disp_p75": 0.5184862186991251, "frac_step_tokens": 0.6154758146912525, "n_steps": 7.40087890625, "frac_steps_routed": 0.5317945739675688, "corr_disp_steplen": -0.05146749512855392}
-{"round": 7, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9492128314729295, "disp_median": 0.18126965537938466, "disp_p25": 0.05770064099853016, "disp_p75": 0.5267638524669465, "frac_step_tokens": 0.618806141674048, "n_steps": 7.38525390625, "frac_steps_routed": 0.5448609964830048, "corr_disp_steplen": -0.04772001080850089}
-{"round": 8, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9469955571290664, "disp_median": 0.17949154189034586, "disp_p25": 0.05982617876330515, "disp_p75": 0.5174458309844062, "frac_step_tokens": 0.6388587148563121, "n_steps": 7.09228515625, "frac_steps_routed": 0.5572015785489736, "corr_disp_steplen": -0.045698287933438685}
-{"round": 9, "n_responses": 2048, "dropped": 0, "disp_mean": 0.945225196506325, "disp_median": 0.18654618170053178, "disp_p25": 0.0608480323689951, "disp_p75": 0.5372102909237461, "frac_step_tokens": 0.6300534507606926, "n_steps": 7.08935546875, "frac_steps_routed": 0.5557439463607216, "corr_disp_steplen": -0.051974237763765356}
-{"round": 10, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9432206302262629, "disp_median": 0.1715463663535649, "disp_p25": 0.05675480189980844, "disp_p75": 0.49756401417736623, "frac_step_tokens": 0.6085464086488744, "n_steps": 7.37744140625, "frac_steps_routed": 0.5300910125289666, "corr_disp_steplen": -0.03412652305300201}
-{"round": 11, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9489464791519989, "disp_median": 0.17385483202516946, "disp_p25": 0.0558230765717164, "disp_p75": 0.506911982672102, "frac_step_tokens": 0.6031560683835065, "n_steps": 7.3125, "frac_steps_routed": 0.5358175902753874, "corr_disp_steplen": -0.04024183540477447}
-{"round": 12, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9348697827964185, "disp_median": 0.17095365156177775, "disp_p25": 0.05523234617162123, "disp_p75": 0.4992876650442028, "frac_step_tokens": 0.6363482559548075, "n_steps": 6.71533203125, "frac_steps_routed": 0.5548328607993821, "corr_disp_steplen": -0.03965486489974725}
-{"round": 13, "n_responses": 2048, "dropped": 0, "disp_mean": 0.940291386795378, "disp_median": 0.16454797213743136, "disp_p25": 0.05563068680362895, "disp_p75": 0.4802374626788224, "frac_step_tokens": 0.6182678569073335, "n_steps": 6.9404296875, "frac_steps_routed": 0.5440078375647718, "corr_disp_steplen": -0.05537903391096407}
-{"round": 14, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9376180229171738, "disp_median": 0.16616819970313507, "disp_p25": 0.05338786475779738, "disp_p75": 0.490663360502489, "frac_step_tokens": 0.6266079852917956, "n_steps": 6.98388671875, "frac_steps_routed": 0.5496527735947564, "corr_disp_steplen": -0.037829985153995264}
-{"round": 15, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9345085888339613, "disp_median": 0.16582660564690105, "disp_p25": 0.055618018849567845, "disp_p75": 0.47221953960171065, "frac_step_tokens": 0.6470870502832528, "n_steps": 6.65966796875, "frac_steps_routed": 0.563367213150935, "corr_disp_steplen": -0.03682778111658689}
-{"round": 16, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9336928385179114, "disp_median": 0.16300613437696818, "disp_p25": 0.052412853911593144, "disp_p75": 0.48767057951018417, "frac_step_tokens": 0.6432117115123491, "n_steps": 6.62744140625, "frac_steps_routed": 0.5773202074864379, "corr_disp_steplen": -0.05252244530293043}
-{"round": 17, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9363034350707077, "disp_median": 0.15534593436644561, "disp_p25": 0.050053435940227334, "disp_p75": 0.47264058533208353, "frac_step_tokens": 0.6065325712464811, "n_steps": 6.962890625, "frac_steps_routed": 0.5481365104550064, "corr_disp_steplen": -0.0463044781287188}
-{"round": 18, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9401327539670905, "disp_median": 0.153015816632481, "disp_p25": 0.0481383522196776, "disp_p75": 0.45843215560646483, "frac_step_tokens": 0.5983122419365652, "n_steps": 7.26513671875, "frac_steps_routed": 0.5312599154990124, "corr_disp_steplen": -0.03970969364478426}
-{"round": 19, "n_responses": 2048, "dropped": 0, "disp_mean": 0.9323735612227282, "disp_median": 0.15821758657840895, "disp_p25": 0.052453853689126424, "disp_p75": 0.4611927584580892, "frac_step_tokens": 0.6469165699964323, "n_steps": 6.51904296875, "frac_steps_routed": 0.5739930296620467, "corr_disp_steplen": -0.035628597343384104}
-ython12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
+$PY - <<'EOF'
+import json, glob
+print("%-36s %6s %8s %8s %8s" % ("file","acc","有boxed率","其中有boxed的对","严格acc"))
+for p in sorted(glob.glob('runs/main/eval_*.jsonl')):
+  rows=[json.loads(l) for l in open(p,encoding='utf-8')]; n=len(rows)
+  box=[r for r in rows if '\\boxed' in r['raw']]
+  print("%-36s %.4f %8.3f %8.3f %8.4f" % (
+      p, sum(r['correct'] for r in rows)/n, len(box)/n,
+      sum(r['correct'] for r in box)/max(len(box),1),
+      sum(r['correct'] and '\\boxed' in r['raw'] for r in rows)/n))
+EOF
+
+
+$PY - <<'EOF'
 from pathlib import Path
 from safetensors import safe_open
 BASE=Path('/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B')
 CKPT=Path('ckpt/model.safetensors')
 bp={}
 for p in sorted(BASE.glob('*.safetensors')):
-    with safe_open(p,framework='pt') as f:
-        for k in f.keys():
-            if k.startswith('model.language_model.'):
-                bp[k[len('model.language_model.'):]]=p
+  with safe_open(p,framework='pt') as f:
+      for k in f.keys():
+          if k.startswith('model.language_model.'):
+              bp['model.'+k[len('model.language_model.'):]]=p
 sf=safe_open(CKPT,framework='pt'); sk=list(sf.keys())
-print("base 文本张量:",len(bp)," ckpt 张量:",len(sk))
-print("ckpt 样例:",sk[:2]); print("base 样例:",list(bp)[:2])
 rows=[]
 for k in sk:
-    if k not in bp: continue
-    with safe_open(bp[k],framework='pt') as f: b=f.get_tensor('model.language_model.'+k).float()
-    s=sf.get_tensor(k).float(); scale=b.abs().mean().item()+1e-12
-    rows.append(((b-s).abs().max().item()/scale,k))
+  if k not in bp: continue
+  with safe_open(bp[k],framework='pt') as f:
+      b=f.get_tensor('model.language_model.'+k[len('model.'):]).float()
+  s=sf.get_tensor(k).float(); sc=b.abs().mean().item()+1e-12
+  rows.append(((s-b).abs().max().item()/sc,(s-b).abs().mean().item()/sc,k))
 rows.sort(reverse=True)
-print("对齐 %d/%d 张量，平均相对变化 %.3e" % (len(rows),len(sk),sum(r for r,_ in rows)/max(len(rows),1)))
-for r,k in rows[:12]: print("  %.3e  %s" % (r,k))
+print("对齐 %d/%d  平均相对变化 max=%.3e mean=%.3e" % (
+  len(rows),len(sk),sum(r[0] for r in rows)/max(len(rows),1),sum(r[1] for r in rows)/max(len(rows),1)))
+for a,m,k in rows[:15]: print("  max %.3e  mean %.3e  %s" % (a,m,k))
+print("未对齐:", [k for k in sk if k not in bp])
 EOF
 
-base 文本张量: 426  ckpt 张量: 427
-ckpt 样例: ['lm_head.weight', 'model.embed_tokens.weight']
-base 样例: ['embed_tokens.weight', 'layers.1.mlp.down_proj.weight']
-对齐 0/427 张量，平均相对变化 0.000e+00
-
-python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
+$PY - <<'EOF'
 import json
-from gam_opsd.route import gam_advantage
-rows=[json.loads(l) for l in open('runs/main/round_019/graded.jsonl',encoding='utf-8')]
-infos=[]; A=[]; C=[]
-for row in rows:
-    for resp in row['responses']:
-        a=resp.get('a') or []
-        if not a: continue
-        _,_,info=gam_advantage(a, resp.get('step_spans'), mode='dynamic', tau=0.5, window=16,
-            eps=1e-6, w_kl=1.0, lambda_step=1.0, adv_norm=False,
-            correct=resp.get('correct',False), correct_scale=1.0,
-            acc_adv=resp.get('acc_adv'), lambda_acc=1.0)
-        infos.append(info)
-        A.append(sum(abs(x) for x in a)/len(a))
-        C.append(abs(resp.get('acc_adv') or 0.0))
-agg=lambda k:(lambda v: sum(v)/len(v) if v else float('nan'))([i[k] for i in infos if i.get(k) is not None])
-for k in ['disp_mean','disp_median','disp_p25','disp_p75',
-          'frac_step_tokens','frac_steps_routed','n_steps','corr_disp_steplen']:
-    print("%-20s %.4f" % (k, agg(k)))
-print("%-20s %.5f   <- 蒸馏项 w_kl·|a_t|" % ('mean|a_t|', sum(A)/len(A)))
-print("%-20s %.5f   <- RL 项 |acc_adv|"  % ('mean|acc_adv|', sum(C)/len(C)))
-print("RL / 蒸馏 幅度比 ≈ %.0fx" % (sum(C)/max(sum(A),1e-9)))
-print("acc_adv==0 的响应占比 %.1f%%  (组内 8 条同对/同错)" % (100*sum(x==0 for x in C)/len(C)))
-print("响应数 %d" % len(infos))
-EOF
-
-disp_mean            0.9324
-disp_median          0.1582
-disp_p25             0.0525
-disp_p75             0.4612
-frac_step_tokens     0.6469
-frac_steps_routed    0.5740
-n_steps              6.5190
-corr_disp_steplen    -0.0356
-mean|a_t|            0.02867   <- 蒸馏项 w_kl·|a_t|
-mean|acc_adv|        0.51736   <- RL 项 |acc_adv|
-RL / 蒸馏 幅度比 ≈ 18x
-acc_adv==0 的响应占比 37.5%  (组内 8 条同对/同错)
-响应数 2048
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-import json, glob, collections
-for p in sorted(glob.glob('runs/main/eval_round_*.jsonl')):
-    rows=[json.loads(l) for l in open(p,encoding='utf-8')]
-    n=len(rows); ok=sum(r['correct'] for r in rows)
-    lv=collections.defaultdict(lambda:[0,0])
-    for r in rows:
-        lv[r.get('level') or '-'][0]+=r['correct']; lv[r.get('level') or '-'][1]+=1
-    print("%-34s acc=%.4f (%d/%d)  " % (p, ok/n, ok, n) +
-          " ".join("L%s:%.3f" % (k,c/t) for k,(c,t) in sorted(lv.items())))
-EOF
-runs/main/eval_round_004.jsonl     acc=0.1760 (88/500)  L1:0.488 L2:0.322 L3:0.181 L4:0.109 L5:0.037
-runs/main/eval_round_009.jsonl     acc=0.2460 (123/500)  L1:0.581 L2:0.456 L3:0.295 L4:0.141 L5:0.060
-runs/main/eval_round_014.jsonl     acc=0.2900 (145/500)  L1:0.721 L2:0.544 L3:0.343 L4:0.180 L5:0.045
-runs/main/eval_round_019.jsonl     acc=0.2820 (141/500)  L1:0.674 L2:0.522 L3:0.352 L4:0.148 L5:0.067
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-import json, statistics
-rows=[json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl',encoding='utf-8')]
-txt=[x['text'] for r in rows for x in r['responses']]
-L=[len(x['token_ids']) for r in rows for x in r['responses']]
-print("rollout n=%d  无\\boxed %.1f%%  长度 mean=%.0f median=%.0f max=%d  触顶(>=1020) %.1f%%"
-      % (len(txt), 100*sum('\\boxed' not in t for t in txt)/len(txt),
-         statistics.mean(L), statistics.median(L), max(L), 100*sum(x>=1020 for x in L)/len(L)))
-rows=[json.loads(l) for l in open('runs/main/eval_round_019.jsonl',encoding='utf-8')]
-print("eval    n=%d  无\\boxed %.1f%%  结尾无标点(疑似截断) %.1f%%"
-      % (len(rows), 100*sum('\\boxed' not in r['raw'] for r in rows)/len(rows),
-         100*sum(not r['raw'].rstrip().endswith(('.',')','}','$')) for r in rows)/len(rows)))
-EOF
-
-rollout n=2048  无\boxed 47.7%  长度 mean=994 median=1024 max=1024  触顶(>=1020) 82.8%
-eval    n=500  无\boxed 68.2%  结尾无标点(疑似截断) 74.6%
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-import json, statistics
-rows=[json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl',encoding='utf-8')]
-txt=[x['text'] for r in rows for x in r['responses']]
-L=[len(x['token_ids']) for r in rows for x in r['responses']]
-n=len(txt)
-print("rollout n=%d  无 boxed %.1f%%  长度 mean=%.0f median=%.0f max=%d  触顶(>=1020) %.1f%%" % (
-    n, 100*sum('\\boxed' not in t for t in txt)/n,
-    statistics.mean(L), statistics.median(L), max(L),
-    100*sum(x>=1020 for x in L)/n))
-rows=[json.loads(l) for l in open('runs/main/eval_round_019.jsonl',encoding='utf-8')]
-m=len(rows)
-print("eval    n=%d  无 boxed %.1f%%" % (m, 100*sum('\\boxed' not in r['raw'] for r in rows)/m))
-EOF
-
-
-rollout n=2048  无 boxed 47.7%  长度 mean=994 median=1024 max=1024  触顶(>=1020) 82.8%
-eval    n=500  无 boxed 68.2%
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
 from pathlib import Path
 from safetensors import safe_open
-sd=Path('runs/main/serving_student')
-ok=set()
-for p in sd.glob('*.safetensors'):
-    with safe_open(p,framework='pt') as f: ok|=set(f.keys())
-pref=""
-for k in sorted(ok):
-    if k.endswith("model.embed_tokens.weight"):
-        pref=k[:-len("model.embed_tokens.weight")]; break
-with safe_open('ckpt/model.safetensors',framework='pt') as f: sk=list(f.keys())
-print("prefix=%r  原始张量=%d  学生张量=%d" % (pref,len(ok),len(sk)))
-print("未被替换:", [k for k in sk if pref+k not in ok])
+for label, p in [('base','/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B'),
+               ('serving','runs/main/serving_student'),
+               ('ckpt','ckpt')]:
+  pp=Path(p); ks=set()
+  for f in sorted(pp.glob('*.safetensors')):
+      with safe_open(f,framework='pt') as sf: ks|=set(sf.keys())
+  cfg=json.load(open(pp/'config.json',encoding='utf-8')) if (pp/'config.json').exists() else {}
+  print("%-8s 总=%-4d lm_head相关=%-28s tie=%-6s arch=%s" % (
+      label, len(ks), str(sorted(k for k in ks if 'lm_head' in k)),
+      str(cfg.get('tie_word_embeddings')), cfg.get('architectures')))
 EOF
 
-prefix='model.language_'  原始张量=738  学生张量=427
-未被替换: ['lm_head.weight']
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
+再补一条，直接看 ckpt 里 lm_head 和 embed_tokens 是不是同一个张量：
 
-(EngineCore pid=318980) WARNING 10-17 15:40:28 [jit_monitor.py:135] Triton kernel JIT compilation during inference: batch_memcpy_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Processed prompts:  19%|██████████████████████████████▉                                                                                                                                       | 93/500 [01:02<01:40,  4.05it/s, est. speed input: 132.05 toks/s, output: 1518.32 toks/s](EngineCore pid=318980) WARNING 10-17 15:41:25 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _zero_kv_blocks_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-Processed prompts: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [03:51<00:00,  2.16it/s, est. speed input: 221.15 toks/s, output: 2210.03 toks/s]
-[eval] /disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B
-[eval] accuracy: 0.0900 (45/500)
-[eval]   level 1: 0.3488 (15/43)
-[eval]   level 2: 0.1778 (16/90)
-[eval]   level 3: 0.0667 (7/105)
-[eval]   level 4: 0.0312 (4/128)
-[eval]   level 5: 0.0224 (3/134)
+$PY - <<'EOF'
+from safetensors import safe_open
+sf=safe_open('ckpt/model.safetensors',framework='pt')
+a=sf.get_tensor('lm_head.weight').float()
+b=sf.get_tensor('model.embed_tokens.weight').float()
+d=(a-b).abs().max().item()
+print("shape", tuple(a.shape), tuple(b.shape))
+print("max|lm_head - embed_tokens| = %.3e  ->  %s" % (d, "tied（同一张量）" if d==0 else "untied（独立参数）"))
+EOF
+
+$PY - <<'EOF'
+import re, pathlib
+src = pathlib.Path('configs/base.yaml').read_text(encoding='utf-8')
+new = re.sub(r'(?m)^(  max_tokens: )1024$', r'\g<1>4096', src)   # 只匹配 eval 段（2 空格缩进）
+assert new != src, "没匹配到，检查缩进"
+pathlib.Path('configs/eval4096.yaml').write_text(new, encoding='utf-8')
+print("ok -> configs/eval4096.yaml")
+EOF
+grep -n "max_tokens\|max_new_tokens" configs/eval4096.yaml
+
+grep 那行用来确认：eval.max_tokens 变成 4096，而 probe.max_tokens 和 rounds.max_new_tokens 仍是 1024。
+
+第二步：两次评测（串行，vLLM 会吃满单卡）。
+
+# 基座
+$PY -m gam_opsd.eval_acc --config configs/eval4096.yaml \
+--model /disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B \
+--out runs/main/eval_base_t4096.jsonl
+
+# 当前学生（round 19）
+$PY -m gam_opsd.eval_acc --config configs/eval4096.yaml \
+--model runs/main/serving_student \
+--out runs/main/eval_r019_t4096.jsonl
