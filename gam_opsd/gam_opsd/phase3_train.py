@@ -41,12 +41,12 @@ def load_round_samples(cfg, k):
     drop_unboxed = t.get("drop_unboxed", True)  # 未框答案的响应判分不可信（回退规则蒙的），不进训练池
     for row in rows:
         for resp in row["responses"]:
+            if drop_unboxed and not resp.get("boxed", True):
+                n_drop_unboxed += 1
+                continue
             n = len(resp.get("a") or [])
             if n == 0:
                 n_drop += 1
-                continue
-            if drop_unboxed and not resp.get("boxed", True):
-                n_drop_unboxed += 1
                 continue
             adv, mask, info = gam_advantage(
                 resp["a"], resp.get("step_spans"),

@@ -31,8 +31,8 @@ rounds:
 
 # ===== Phase 2: 打分（师生对数比 a_t = log π_T − log π_S）=====
 grade:
-  teacher_devices: [0, 1, 2, 3, 4, 5]   # 教师 bf16 前向占卡
-  student_devices: [6, 7]               # 学生前向占卡
+  teacher_devices: [0]    # 教师占卡；单元素=单卡直载（推荐），多元素则退回 device_map 跨卡切分
+  student_devices: [1]    # 学生占卡
   vocab_chunk: 16384      # logsumexp 分词表块计算（online，防溢出）
   step_window: 64         # tokenizer 对齐失败时步骤切分的回退窗口（token）
   teacher_sees_gold: true # 自蒸馏规范设定 π_T(·|x,y*,·)；跨模型需同 tokenizer，可改 false
@@ -50,7 +50,8 @@ route:
 # ===== Phase 3: 训练 =====
 train:
   ckpt_dir: "./ckpt"      # 学生 checkpoint 目录（与初始模型路径分离，防教师遮蔽）
-  drop_unboxed: true      # 未框答案的响应不进训练池（判分不可信）；关掉可考察标签噪声的影响
+  drop_unboxed: true      # 未框答案的响应：phase2 不算 a_t + phase3 不进训练池（判分不可信）；
+                          # 关掉则两处都恢复全量（可考察标签噪声的影响）
   ckpt_architectures: "Qwen3_5TextModel"  # ckpt 真实身份=VL 模型的文本骨干（transformers 的 phase2/3 用）；
   ckpt_model_type: "qwen3_5_text"         # vLLM 不直接服务 ckpt 目录，走 common.build_serving_dir 的马甲目录
   arm: "opd_acc"          # opd | opd_acc（纯 GRPO baseline = w_kl: 0.0 + opd_acc）
