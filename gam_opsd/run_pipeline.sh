@@ -15,7 +15,8 @@
 # 环境变量：
 #   PY=<python>   覆盖解释器路径
 #   ROUNDS=<n>    覆盖轮数(默认取 configs 里的 num_rounds=20)
-#   DETACH=1      arms/all 改后台运行(日志 runs/<arm>/loop.log)
+#   DETACH=1      arms/all/stage1 整串丢后台（顺序执行，日志 runs/_pipeline.log）
+#                 注意 smoke / probe 不受影响，仍是前台
 #
 # 注意：
 #   * configs/base.yaml 是「模板」，实际运行的是生成出来的 configs/<arm>.yaml
@@ -97,7 +98,7 @@ baseline() {                # 未训练的基座，作为所有臂的参照
     --out runs/base/eval_base.jsonl
 }
 
-run_arm() {
+_run_arm_fg() {             # 前台顺序跑一个臂
   local arm=$1
   if [[ "$arm" == "base" ]]; then arm=main; fi   # base.yaml 那一份 = 主臂
   local cfg="configs/$arm.yaml"
@@ -106,12 +107,17 @@ run_arm() {
   local extra=(); [[ -n "$ROUNDS" ]] && extra=(--rounds "$ROUNDS")
   echo ""
   echo "=== [$arm] $PY -m gam_opsd.loop --config $cfg ${extra[*]:-} ==="
+  $PY -m gam_opsd.loop --config "$cfg" "${extra[@]}"
+}
+
+run_arms() {                # 顺序跑多个臂；DETACH=1 把整串丢后台（不会并发抢卡）
+  local arms=("$@")
   if [[ "${DETACH:-0}" == "1" ]]; then
-    nohup $PY -m gam_opsd.loop --config "$cfg" "${extra[@]}" \
-      > "runs/$arm/loop.log" 2>&1 &
-    echo "[$arm] 后台 pid=$!  日志: tail -f runs/$arm/loop.log"
+    mkdir -p runs
+    ( for a in "${arms[@]}"; do _run_arm_fg "$a"; done ) > runs/_pipeline.log 2>&1 &
+    echo "后台 pid=$!   日志: tail -f runs/_pipeline.log"
   else
-    $PY -m gam_opsd.loop --config "$cfg" "${extra[@]}"
+    for a in "${arms[@]}"; do _run_arm_fg "$a"; done
   fi
 }
 
@@ -121,7 +127,8 @@ case "${1:-help}" in
     echo "== 冒烟：自包含（自己造 16 题池 + 1 轮训练），约 10 分钟 =="
     gen_configs
     $PY -m gam_opsd.phase0_probe --config configs/smoke.yaml
-    ROUNDS="${ROUNDS:-1}" run_arm smoke
+    ROUNDS="${ROUNDS:-1}"
+    _run_arm_fg smoke
     echo ""
     echo "== 验收四件事 =="
     echo "  1) grade 打印 [grade] teacher -> cuda:0, student -> cuda:1（单卡直载）"
@@ -143,14 +150,14 @@ case "${1:-help}" in
     shift
     [[ $# -gt 0 ]] || { echo "用法: bash $0 arms main [grpo token step opd]"; exit 1; }
     gen_configs
-    for a in "$@"; do run_arm "$a"; done
+    run_arms "$@"
     ;;
 
   all)
     gen_configs
     [[ -f runs/main/prompts.jsonl ]] || \
       { echo "先跑: bash $0 probe（题池只造一次）"; exit 1; }
-    for a in "${ARMS[@]}"; do run_arm "$a"; done
+    run_arms "${ARMS[@]}"
     ;;
 
   stage1)
@@ -164,7 +171,7 @@ case "${1:-help}" in
       $PY -m gam_opsd.phase0_probe --config configs/main.yaml
     fi
     baseline
-    for a in main grpo opd; do run_arm "$a"; done
+    run_arms main grpo opd
     echo ""
     echo "== 阶段1 全部完成 =="
     bash "$0" report
