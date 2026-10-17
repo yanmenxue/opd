@@ -1,133 +1,4 @@
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd/runs/main# $PY - <<'EOF'
-from transformers import AutoTokenizer
-tok = AutoTokenizer.from_pretrained('/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B')
-msgs = [{"role": "user", "content": "What is 1+1? Answer in \\boxed{}."}]
-for kw in [{}, {"enable_thinking": True}, {"enable_thinking": False}]:
-  try:
-      t = tok.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False, **kw)
-      print("kw=%-26s len=%-5d tail=%r" % (str(kw), len(t), t[-150:]))
-  except Exception as e:
-      print("kw=%-26s ERROR %s" % (str(kw), e))
-EOF
-
-grep -n "thinking" runs/main/serving_student/chat_template.jinja^C
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd/runs/main# cd ../..
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-from transformers import AutoTokenizer
-tok = AutoTokenizer.from_pretrained('/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B')
-msgs = [{"role": "user", "content": "What is 1+1? Answer in \\boxed{}."}]
-for kw in [{}, {"enable_thinking": True}, {"enable_thinking": False}]:
-  try:
-      t = tok.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False, **kw)
-      print("kw=%-26s len=%-5d tail=%r" % (str(kw), len(t), t[-150:]))
-  except Exception as e:
-      print("kw=%-26s ERROR %s" % (str(kw), e))
-EOF
-
-grep -n "thinking" runs/main/serving_student/chat_template.jinja
-kw={}                         len=90    tail='<|im_start|>user\nWhat is 1+1? Answer in \\boxed{}.<|im_end|>\n<|im_start|>assistant\n<think>\n'
-kw={'enable_thinking': True}  len=90    tail='<|im_start|>user\nWhat is 1+1? Answer in \\boxed{}.<|im_end|>\n<|im_start|>assistant\n<think>\n'
-kw={'enable_thinking': False} len=101   tail='<|im_start|>user\nWhat is 1+1? Answer in \\boxed{}.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n'
-149:    {%- if enable_thinking is defined and enable_thinking is false %}
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-import json
-ro = [json.loads(l) for l in open('runs/main/round_019/rollouts.jsonl', encoding='utf-8')]
-gr = {r['qid']: r for r in
-    (json.loads(l) for l in open('runs/main/round_019/graded.jsonl', encoding='utf-8'))}
-n = box = ok = ok_box = ok_nobox = 0
-for r in ro:
-  g = gr[r['qid']]
-  for x, y in zip(r['responses'], g['responses']):
-      n += 1
-      has = '\\boxed' in x['text']
-      box += has
-      c = y['correct']
-      ok += c
-      if c and has:     ok_box += 1
-      if c and not has: ok_nobox += 1
-print("响应 %d   boxed率 %.3f   判为正 %.3f" % (n, box / n, ok / n))
-print("判正里头：有 boxed %d  |  靠'最后一个数字'回退蒙到的 %d (%.1f%%)"
-    % (ok_box, ok_nobox, 100 * ok_nobox / max(ok, 1)))
-EOF
-
-响应 2048   boxed率 0.523   判为正 0.567
-判正里头：有 boxed 978  |  靠'最后一个数字'回退蒙到的 184 (15.8%)
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
-import json, math
-from gam_opsd.route import dispersion
-
-def pearson(xs, ys):
-  n = len(xs); mx = sum(xs)/n; my = sum(ys)/n
-  sxx = sum((x-mx)**2 for x in xs); syy = sum((y-my)**2 for y in ys)
-  sxy = sum((x-mx)*(y-my) for x, y in zip(xs, ys))
-  return sxy/math.sqrt(sxx*syy) if sxx > 0 and syy > 0 else float('nan')
-
-def step_corr(disp, spans):
-  ds = [sum(disp[s:e])/(e-s) for s, e in spans]; ls = [e-s for s, e in spans]
-  return pearson(ds, ls) if len(ds) > 1 else float('nan')
-
-def tok_corr(disp, spans):
-  st = [e-s for s, e in spans for _ in range(e-s)]
-  return pearson(disp, st)
-
-def avg(v):
-  v = [x for x in v if x == x]
-  return sum(v)/len(v) if v else float('nan')
-
-for rd in ['round_000', 'round_009', 'round_019']:
-  rows = [json.loads(l) for l in open('runs/main/%s/graded.jsonl' % rd, encoding='utf-8')]
-  for w in [8, 16, 32, 64]:
-      T, S = [], []
-      for r in rows:
-          for x in r['responses']:
-              a = x['a']
-              if len(a) < 4: continue
-              sp = x.get('step_spans') or [(0, len(a))]
-              d = dispersion(a, window=w)
-              T.append(tok_corr(d, sp)); S.append(step_corr(d, sp))
-      print("%s w=%-3d  token级 %+.3f   <<step级 %+.3f>>" % (rd, w, avg(T), avg(S)))
-  print()
-
-# τ 的标定 + 分位数路由的比例
-rows = [json.loads(l) for l in open('runs/main/round_019/graded.jsonl', encoding='utf-8')]
-means = []
-for r in rows:
-  for x in r['responses']:
-      a = x['a']
-      if len(a) < 4: continue
-      sp = x.get('step_spans') or [(0, len(a))]
-      d = dispersion(a, window=16)
-      for s, e in sp: means.append(sum(d[s:e])/(e-s))
-ms = sorted(means); N = len(ms)
-print("步骤总数 %d   步内 mean Disp 分位：" % N)
-for p in [0.1, 0.25, 0.5, 0.75, 0.9]:
-  print("  p%-4.2f = %.3f" % (p, ms[min(N-1, int(p*N))]))
-EOF
-
-round_000 w=8    token级 -0.109   <<step级 -0.161>>
-round_000 w=16   token级 -0.146   <<step级 -0.198>>
-round_000 w=32   token级 -0.193   <<step级 -0.231>>
-round_000 w=64   token级 -0.241   <<step级 -0.262>>
-
-round_009 w=8    token级 -0.036   <<step级 +0.161>>
-round_009 w=16   token级 -0.052   <<step级 +0.101>>
-round_009 w=32   token级 -0.080   <<step级 +0.015>>
-round_009 w=64   token级 -0.118   <<step级 -0.065>>
-
-round_019 w=8    token级 -0.023   <<step级 +0.207>>
-round_019 w=16   token级 -0.036   <<step级 +0.137>>
-round_019 w=32   token级 -0.061   <<step级 +0.045>>
-round_019 w=64   token级 -0.099   <<step级 -0.046>>
-
-步骤总数 13351   步内 mean Disp 分位：
-  p0.10 = 0.007
-  p0.25 = 0.029
-  p0.50 = 0.193
-  p0.75 = 0.971
-  p0.90 = 2.674
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd#
-(python12) root@poissongpu006:/disk1/duhw/code/opd/gam_opsd# $PY - <<'EOF'
+cat > /tmp/probe_len.py <<'EOF'
 import statistics, sys
 sys.path.insert(0, '.')
 from gam_opsd.common import build_llm, chat_many, load_config
@@ -140,49 +11,32 @@ rows = load_eval(cfg)[:20]
 llm = build_llm(MODEL, tp=1, max_model_len=10240)
 outs = chat_many(llm, [qa_messages(r['question']) for r in rows],
                n=1, temperature=0.0, top_p=1.0, max_tokens=8192)
-L = []; nb = 0; nt = 0
+L, nb, nc, ndone = [], 0, 0, 0
 for r, comps in zip(rows, outs):
   c = comps[0]; t = c.text; L.append(len(c.token_ids))
   hb = '\\boxed' in t
-  ht = (' thinking' in t) or ('<|thinking|>' in t)
-  nb += hb; nt += ht
-  print("%-10s len=%5d boxed=%d think=%d tail=%r"
-        % (r['qid'], len(c.token_ids), hb, ht, t[-100:]))
+  hc = '</think>' in t          # 模板是 <think>…</think>，开标签在 prompt 里，只在输出找闭标签
+  nb += hb; nc += hb and hc; ndone += hc
+  print("%-10s len=%5d boxed=%d 思考收尾=%d tail=%r"
+        % (r['qid'], len(c.token_ids), hb, hc, t[-90:]))
 s = sorted(L)
-print("\n长度 min=%d p25=%d median=%d p75=%d max=%d  mean=%.0f"
+print("\n长度 min=%d p25=%d median=%d p75=%d max=%d mean=%.0f"
     % (s[0], s[len(s)//4], statistics.median(s), s[3*len(s)//4], s[-1], statistics.mean(s)))
-print("触顶(==8192) %d/%d   boxed率 %.2f   thinking标记率 %.2f"
-    % (sum(x >= 8190 for x in L), len(L), nb/len(L), nt/len(L)))
+print("触顶(>=8190) %d/%d   boxed率 %.2f   思考收尾率 %.2f"
+    % (sum(x >= 8190 for x in L), len(L), nb/len(L), ndone/len(L)))
 EOF
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-INFO 10-17 17:54:17 [api_utils.py:273] non-default args: {'dtype': 'bfloat16', 'max_model_len': 10240, 'enable_prefix_caching': True, 'disable_log_stats': True, 'model': '/disk1/duhw/models/ms_qwen3.5-4b/Qwen/Qwen3.5-4B'}
-INFO 10-17 17:54:17 [model.py:623] Resolved architecture: Qwen3_5ForConditionalGeneration
-INFO 10-17 17:54:17 [model.py:1788] Using max model len 10240
-INFO 10-17 17:54:17 [scheduler.py:252] Chunked prefill is enabled with max_num_batched_tokens=8192.
-WARNING 10-17 17:54:17 [config.py:563] Mamba cache mode is set to 'align' for Qwen3_5ForConditionalGeneration by default when prefix caching is enabled
-INFO 10-17 17:54:17 [config.py:583] Warning: Prefix caching in Mamba cache 'align' mode is currently enabled. Its support for Mamba layers is experimental. Please report any issues you may observe.
-INFO 10-17 17:54:17 [vllm.py:1109] Asynchronous scheduling is enabled.
-INFO 10-17 17:54:17 [kernel.py:295] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
-[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
-WARNING 10-17 17:54:29 [system_utils.py:157] We must use the `spawn` multiprocessing start method. Overriding VLLM_WORKER_MULTIPROC_METHOD to 'spawn'. See https://docs.vllm.ai/en/latest/usage/troubleshooting.html#python-multiprocessing for more information. Reasons: CUDA is initialized
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-  File "/root/anaconda3/envs/python12/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
-    exitcode = _main(fd, parent_sentinel)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/multiprocessing/spawn.py", line 131, in _main
-    prepare(preparation_data)
-  File "/root/anaconda3/envs/python12/lib/python3.12/multiprocessing/spawn.py", line 246, in prepare
-    _fixup_main_from_path(data['init_main_from_path'])
-  File "/root/anaconda3/envs/python12/lib/python3.12/multiprocessing/spawn.py", line 297, in _fixup_main_from_path
-    main_content = runpy.run_path(main_path,
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen runpy>", line 286, in run_path
-  File "<frozen runpy>", line 254, in _get_code_from_file
-FileNotFoundError: [Errno 2] No such file or directory: '/disk1/duhw/code/opd/gam_opsd/<stdin>'
-Traceback (most recent call last):
-  File "<stdin>", line 10, in <module>
-  File "/disk1/duhw/code/opd/gam_opsd/gam_opsd/common.py", line 272, in build_llm
-    return LLM(
-           ^^^^
-  File "/root/anaconda3/envs/python12/lib/python3.12/site-packages/vllm/entrypoi
+$PY /tmp/probe_len.py
+
+
+$PY - <<'EOF'
+import glob, json
+def trunc(t): return not t.rstrip().endswith(('.', ')', '}', '$', '"'))
+print("%-32s %6s %8s %10s %8s %8s" % ("file", "acc", "boxed率", "boxed后正确", "均长", "截断率"))
+for p in sorted(glob.glob('runs/main/eval_*t4096*.jsonl')) + sorted(glob.glob('runs/main/eval_round_019.jsonl')) + sorted(glob.glob('runs/main/eval_base.jsonl')):
+  rows = [json.loads(l) for l in open(p, encoding='utf-8')]
+  n = len(rows); box = [r for r in rows if '\\boxed' in r['raw']]
+  print("%-32s %.4f %8.3f %10.3f %8.0f %8.3f" % (
+      p.split('/')[-1], sum(r['correct'] for r in rows)/n, len(box)/n,
+      sum(r['correct'] for r in box)/max(len(box),1),
+      sum(len(r['raw']) for r in rows)/n, sum(trunc(r['raw']) for r in rows)/n))
+EOF
