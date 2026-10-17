@@ -146,6 +146,7 @@ def main():
                 "step_spans": spans,
                 "correct": resp["correct"],
                 "acc_adv": a_adv,
+                "boxed": "\\boxed" in (resp.get("text") or ""),
             })
             n_done += 1
             if n_done % 100 == 0:

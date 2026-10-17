@@ -203,11 +203,16 @@ def score_answer(pred: str, gold: str) -> bool:
 
 
 # ---------- chat 模板 ----------
-def chat_template_ids(tok, conversation):
+def chat_template_ids(tok, conversation, enable_thinking=None):
     """apply_chat_template 渲染成字符串后手动编码为 ids；不依赖各 transformers
-    版本的 tokenize 默认值与返回类型（v5 起默认 False 返回 str）。"""
+    版本的 tokenize 默认值与返回类型（v5 起默认 False 返回 str）。
+
+    enable_thinking=None 时不传该参数（沿用模板默认；实测 Qwen3.5 的 {} 与
+    enable_thinking=True 渲染一致，即默认「思考开」）。phase1 走 vLLM 的 chat()
+    用它自己的模板默认值，两边须保持同一个值，否则师生 prompt 不一致。"""
+    kw = {} if enable_thinking is None else {"enable_thinking": enable_thinking}
     text = tok.apply_chat_template(conversation, add_generation_prompt=True,
-                                   tokenize=False)
+                                   tokenize=False, **kw)
     return tok(text, add_special_tokens=False)["input_ids"]
 
 
@@ -231,11 +236,14 @@ def build_serving_dir(cfg):
     if not ckpt_w.exists():
         return str(src)
     out = Path(cfg["work_dir"]) / "serving_student"
-    sig = f"v2:{ckpt_w}:{ckpt_w.stat().st_mtime_ns}"  # v2: 键名前缀对齐
+    sig = f"v3:{ckpt_w}:{ckpt_w.stat().st_mtime_ns}"  # v3: 补非权重文件复制 + 顶层键对齐
     marker = out / ".built_for"
     if marker.exists() and marker.read_text().strip() == sig:
         return str(out)  # ckpt 未变，直接复用
     out.mkdir(parents=True, exist_ok=True)
+    for f in src.iterdir():  # config/tokenizer/processor 必须一起带上，否则 vLLM 起不来
+        if f.is_file() and f.suffix != ".safetensors" and not f.name.startswith("."):
+            shutil.copy2(f, out / f.name)
     files = sorted(src.glob("*.safetensors"))
     orig_keys = set()
     for f in files:
@@ -251,10 +259,14 @@ def build_serving_dir(cfg):
             prefix = k[:-len("model.embed_tokens.weight")]
             break
     repl = {prefix + k: k for k in stud_keys if prefix + k in orig_keys}
+    repl.update({k: k for k in stud_keys if k in orig_keys})  # 顶层键（lm_head 等）同名对齐
     if not repl:
         raise RuntimeError("ckpt 键与原始权重对齐失败（前缀不匹配），不重建 serving 目录")
-    print(f"[serving] 前缀 '{prefix}'：替换文本张量 {len(repl)}/{len(stud_keys)}，"
-          f"visual 等其余 {len(orig_keys) - len(repl)} 个保持原样")
+    miss = [k for k in stud_keys if k not in repl]
+    if miss:
+        print(f"[serving] 警告：{len(miss)} 个学生张量未替换，服务端仍用基座权重 {miss}")
+    print(f"[serving] 前缀 '{prefix}'：替换张量 {len(repl)}/{len(stud_keys)}，"
+          f"其余 {len(orig_keys) - len(set(repl.values()))} 个保持原样")
     merged = {}
     for f in files:
         with safe_open(f, framework="pt") as sf:

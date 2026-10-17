@@ -1,10 +1,11 @@
 """准确率评测：vLLM 贪心解码 + math_verify；MATH-500 按 level 分层报告。"""
 import argparse
 from collections import defaultdict
+from pathlib import Path
 
 from .common import (
-    build_llm, build_serving_dir, chat_many, extract_answer, load_config,
-    score_answer, write_jsonl,
+    append_jsonl, build_llm, build_serving_dir, chat_many, extract_answer,
+    load_config, score_answer, write_jsonl,
 )
 from .data import load_eval
 from .prompts import qa_messages
@@ -36,6 +37,11 @@ def evaluate(model, cfg, out_path=None):
             print(f"[eval]   level {lv}: {c / t:.4f} ({c}/{t})")
     if out_path:
         write_jsonl(out_path, results)
+        append_jsonl(Path(out_path).parent / "eval_summary.jsonl", {
+            "model": model, "file": str(out_path), "n": len(rows), "acc": acc,
+            "by_level": {str(lv): c / t for lv, (c, t) in sorted(by_level.items())},
+            "unboxed_rate": sum("\\boxed" not in r["raw"] for r in results) / max(len(rows), 1),
+        })
     return acc
 
 

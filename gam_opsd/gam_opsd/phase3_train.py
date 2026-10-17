@@ -37,11 +37,16 @@ def load_round_samples(cfg, k):
     samples = []
     infos = []
     n_drop = 0
+    n_drop_unboxed = 0
+    drop_unboxed = t.get("drop_unboxed", True)  # 未框答案的响应判分不可信（回退规则蒙的），不进训练池
     for row in rows:
         for resp in row["responses"]:
             n = len(resp.get("a") or [])
             if n == 0:
                 n_drop += 1
+                continue
+            if drop_unboxed and not resp.get("boxed", True):
+                n_drop_unboxed += 1
                 continue
             adv, mask, info = gam_advantage(
                 resp["a"], resp.get("step_spans"),
@@ -61,7 +66,7 @@ def load_round_samples(cfg, k):
             samples.append({"question": row["question"], "token_ids": resp["token_ids"],
                             "chosen_lp": resp["chosen_lp"], "sel_mask": resp["sel_mask"],
                             "adv": adv})
-    diag = {"n_responses": len(infos), "dropped": n_drop}
+    diag = {"n_responses": len(infos), "dropped": n_drop, "dropped_unboxed": n_drop_unboxed}
     for key in infos[0] if infos else ():
         vals = [i[key] for i in infos if i.get(key) is not None]
         diag[key] = sum(vals) / len(vals) if vals else None
@@ -126,11 +131,13 @@ def main():
         rt = cfg.get("route", {})
         print(f"[train] round {args.round} arm={t['arm']}: {len(samples)} samples")
         print(f"[train] route mode={rt.get('mode', 'dynamic')} tau={rt.get('tau', 0.5)} "
-              f"window={rt.get('window', 16)}: frac_step_tokens={diag.get('frac_step_tokens')}")
+              f"window={rt.get('window', 16)}: frac_step_tokens={diag.get('frac_step_tokens')} "
+              f"frac_steps={diag.get('frac_steps_routed')} n_steps={diag.get('n_steps')}")
         if diag.get("disp_mean") is not None:
             print(f"[train] dispersion mean={diag['disp_mean']:.3f} "
-                  f"median={diag['disp_median']:.3f} "
-                  f"corr(disp,steplen)={diag.get('corr_disp_steplen')}")
+                  f"p25={diag.get('disp_p25')} median={diag['disp_median']:.3f} "
+                  f"p75={diag.get('disp_p75')}")
+        print(f"[train] dropped={diag.get('dropped')} 其中未框答案={diag.get('dropped_unboxed')}")
 
     # ---- 构造批次 ----
     mb = t["micro_batch"]
@@ -239,6 +246,16 @@ def main():
         from safetensors.torch import save_file
         sd = {k: v.to(torch.bfloat16) for k, v in sd.items()}
         save_file(sd, str(out_dir / "model.safetensors"), metadata={"format": "pt"})
+        # 评测轮留一份快照：ckpt 每轮被覆盖，事后无法换预算复评（见 rounds.eval_every）
+        ev = cfg["rounds"].get("eval_every", 0)
+        if ev and (args.round + 1) % ev == 0:
+            import shutil
+            snap = out_dir / f"round_{args.round:03d}"
+            snap.mkdir(parents=True, exist_ok=True)
+            for f in out_dir.iterdir():
+                if f.is_file():
+                    shutil.copy2(f, snap / f.name)
+            print(f"[train] 快照 -> {snap}")
         append_jsonl(Path(cfg["work_dir"]) / "train_log.jsonl",
                      {"round": args.round, "loss": stats["loss"] / max(stats["n"], 1),
                       "steps": step, "n_samples": len(samples), **diag})
