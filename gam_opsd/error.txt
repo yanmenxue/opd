@@ -1,9 +1,24 @@
- import json
-  rows=[json.loads(l) for l in open('runs/base/eval_base.jsonl')]
-  u=sum('\\boxed' not in r['raw'] for r in rows)/len(rows)
-  b=[r for r in rows if '\\boxed' in r['raw']]
-  print('unboxed_rate',round(u,3),'acc',round(sum(r['correct'] for r in rows)/len(rows),3))
-  print('boxed_acc',round(sum(r['correct'] for r in b)/max(1,len(b)),3))
-  for r in rows:
-      if '\\boxed' not in r['raw']:
-          print('---- len',len(r['raw']),'tail:',repr(r['raw'][-160:]));
+import json
+  from vllm import SamplingParams
+  from gam_opsd.common import build_llm, load_config
+  from gam_opsd.prompts import qa_messages
+  from gam_opsd.data import load_eval
+
+  cfg = load_config('configs/main.yaml')
+  pool = [json.loads(l) for l in open('runs/main/prompts.jsonl')][:100]
+  m500 = load_eval(cfg)[:100]
+  rows = pool + m500
+  llm = build_llm(cfg['student_model'], tp=1, max_model_len=32768 + 1024)
+  sp = SamplingParams(temperature=0.6, top_p=0.95, top_k=20, max_tokens=32768)
+  outs = llm.chat([qa_messages(r['question']) for r in rows], sp, use_tqdm=True)
+
+  L = [len(o.outputs[0].token_ids) for o in outs]
+  B = ['\\boxed' in o.outputs[0].text for o in outs]
+  q = lambda p: sorted(L)[int(p * (len(L) - 1))]
+  print('p50/p90/p95/p99:', q(.5), q(.9), q(.95), q(.99),
+        'finish=length:', sum(o.outputs[0].finish_reason == 'length' for o in outs),
+        'boxed:', sum(B)/len(B))
+  for name, sl in [('pool', slice(0,100)), ('m500', slice(100,200))]:
+      sub = sorted(zip(L, B)[sl] if False else list(zip(L, B))[sl])
+      print(name, 'p95', sub[int(.95*(len(sub)-1))][0],
+            'boxed', sum(b for _, b in sub)/len(sub))

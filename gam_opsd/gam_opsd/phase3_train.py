@@ -182,12 +182,22 @@ def main():
         ids = ids.cuda(rank)
         resp_mask = resp_mask.cuda(rank)
         tgt = ids[:, 1:]
-        # 融合 CE 取选中 token 的 logp（log_softmax.gather ≡ -CE），
-        # 避免物化整份 [B,T,V] fp32 log_softmax 输出（省 ~2.5GB/前向+反向）
-        logits = fsdp(input_ids=ids).logits
-        tok_logp = -torch.nn.functional.cross_entropy(
-            logits[:, :-1].float().reshape(-1, logits.size(-1)),
-            tgt.reshape(-1), reduction="none").view(tgt.shape)          # [B, T-1]
+        # 融合 CE 取选中 token 的 logp（log_softmax.gather ≡ -CE）。
+        # 按序列分块，避免整份 [B,T,V] fp32 logits/CE 中间量同时驻留：
+        # V=248320 时 T=5120 的一份 fp32 就是 ~4.7GiB，T=9216 时 ~8.5GiB，
+        # backward 要同时持有 logits 副本、CE 保存值和 grad 三份。
+        # 分块后每块 ≤256MiB，结果与整份计算逐位等价（各位置独立）。
+        logits = fsdp(input_ids=ids).logits                              # [B, T, V] bf16
+        V, n_out = logits.size(-1), ids.size(1) - 1
+        chunk = max(1, (256 << 20) // (4 * V))
+        parts = []
+        for s in range(0, n_out, chunk):
+            e = min(s + chunk, n_out)
+            lg = logits[:, s:e].float().reshape(-1, V)
+            ce = -torch.nn.functional.cross_entropy(
+                lg, tgt[:, s:e].reshape(-1), reduction="none")
+            parts.append(ce.view(ids.size(0), e - s))
+        tok_logp = torch.cat(parts, dim=1)                                # [B, T-1]
         m = resp_mask[:, 1:].float()
 
         adv = adv_t[:, 1:].cuda(rank)
