@@ -15,6 +15,7 @@
 # 环境变量：
 #   PY=<python>   覆盖解释器路径
 #   ROUNDS=<n>    覆盖轮数(默认取 configs 里的 num_rounds=20)
+#   RESUME=1      给 loop 加 --resume：跳过已落盘的 rollout/graded 与已完成的整轮
 #   DETACH=1      arms/all/stage1 整串丢后台（顺序执行，日志 runs/_pipeline.log）
 #                 注意 smoke / probe 不受影响，仍是前台
 #
@@ -90,6 +91,10 @@ ensure_prompts() {          # 题池只造一次，其余臂复用
 
 baseline() {                # 未训练的基座，作为所有臂的参照
   local m
+  if [[ -s runs/base/eval_base.jsonl ]]; then
+    echo "[base] runs/base/eval_base.jsonl 已存在，跳过（要重测就删掉它）"
+    return 0
+  fi
   m=$($PY -c "import yaml;print(yaml.safe_load(open('configs/main.yaml',encoding='utf-8'))['student_model'])")
   mkdir -p runs/base
   echo ""
@@ -104,7 +109,9 @@ _run_arm_fg() {             # 前台顺序跑一个臂
   local cfg="configs/$arm.yaml"
   [[ -f "$cfg" ]] || { echo "没有 $cfg，先跑 gen"; exit 1; }
   ensure_prompts "$arm"
-  local extra=(); [[ -n "$ROUNDS" ]] && extra=(--rounds "$ROUNDS")
+  local extra=()
+  if [[ -n "$ROUNDS" ]]; then extra+=(--rounds "$ROUNDS"); fi
+  if [[ "${RESUME:-0}" == "1" ]]; then extra+=(--resume); fi   # 跳过已落盘的 rollout/graded
   echo ""
   echo "=== [$arm] $PY -m gam_opsd.loop --config $cfg ${extra[*]:-} ==="
   $PY -m gam_opsd.loop --config "$cfg" "${extra[@]}"
