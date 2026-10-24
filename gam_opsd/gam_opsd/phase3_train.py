@@ -190,7 +190,7 @@ def main():
         #   1) 按序列分块（每块 fp32 ≤256MiB），避免整份 [T,V] 同时驻留；
         #   2) 每块用 checkpoint：backward 时重算该块的 fp32 softmax，
         #      算完即释放，保存值只剩 1 块（~0.25GiB）而不是整条序列。
-        # 各位置独立，结果与整份计算逐位等价（只省显存，不改数值）。
+        # 各位置独立，结果与整份计算数值等价（只有浮点求和顺序差异）。
         def _neg_ce(lg, tg, vocab):
             return -torch.nn.functional.cross_entropy(
                 lg.float().reshape(-1, vocab), tg.reshape(-1),
